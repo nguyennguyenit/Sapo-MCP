@@ -1,0 +1,67 @@
+name: Nightly Canary
+
+on:
+  schedule:
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+jobs:
+  canary:
+    name: Canary API Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: npm
+
+      - name: Verify canary secrets configured
+        env:
+          SAPO_CANARY_STORE: ${{ secrets.SAPO_CANARY_STORE }}
+        run: |
+          if [ -z "$SAPO_CANARY_STORE" ]; then
+            echo "::warning::SAPO_CANARY_STORE secret not configured; skipping canary."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+        id: gate
+
+      - name: Install dependencies
+        if: steps.gate.outputs.skip != 'true'
+        run: npm ci
+
+      - name: Build
+        if: steps.gate.outputs.skip != 'true'
+        run: npm run build
+
+      - name: Run canary probe (read-only)
+        if: steps.gate.outputs.skip != 'true'
+        id: probe
+        env:
+          SAPO_STORE: ${{ secrets.SAPO_CANARY_STORE }}
+          SAPO_API_KEY: ${{ secrets.SAPO_CANARY_API_KEY }}
+          SAPO_API_SECRET: ${{ secrets.SAPO_CANARY_API_SECRET }}
+        run: |
+          # probe-read.ts exits 0 = all available (no regression)
+          # exit 2 = auth failure, exit 3 = smoke regression, exit 1 = fatal
+          npm run probe 2>&1 | tee canary-output.txt
+        continue-on-error: true
+
+      - name: File issue on regression
+        if: steps.gate.outputs.skip != 'true' && steps.probe.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const output = fs.readFileSync('canary-output.txt', 'utf8');
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `[Canary] API regression detected ${new Date().toISOString().split('T')[0]}`,
+              body: `Nightly canary detected a regression.\n\nExit codes: 0=ok, 2=auth_fail, 3=regression, 1=fatal\n\n\`\`\`\n${output.slice(0, 5000)}\n\`\`\``,
+              labels: ['canary', 'bug'],
+            });

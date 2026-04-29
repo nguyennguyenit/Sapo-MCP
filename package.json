@@ -1,0 +1,82 @@
+{
+  "name": "sapo-mcp",
+  "version": "0.0.0",
+  "description": "Model Context Protocol server for Sapo.vn — POS & e-commerce API access for Claude & AI agents",
+  "license": "MIT",
+  "author": {
+    "name": "Plateau Nguyen",
+    "email": "nguyennlt.ncc@gmail.com"
+  },
+  "homepage": "https://github.com/plateau/sapo-mcp",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/plateau/sapo-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/plateau/sapo-mcp/issues"
+  },
+  "type": "module",
+  "bin": {
+    "sapo-mcp": "./dist/index.mjs"
+  },
+  "exports": {
+    ".": "./dist/index.mjs"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "sapo",
+    "sapo.vn",
+    "vietnam",
+    "ecommerce",
+    "pos",
+    "point-of-sale",
+    "shopify-alternative",
+    "ai",
+    "claude",
+    "ai-agent",
+    "api-client"
+  ],
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.13",
+    "@changesets/cli": "^2.31.0",
+    "@types/node": "^20.19.0",
+    "@vitest/coverage-v8": "^4.1.5",
+    "msw": "^2.14.2",
+    "tsup": "^8.5.1",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.5"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "probe": "tsx scripts/probe-read.ts",
+    "probe:write": "tsx scripts/probe-write.ts",
+    "release": "changeset publish",
+    "ci": "npm run typecheck && npm run lint && npm run test:coverage && npm run build"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

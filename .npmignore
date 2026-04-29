@@ -1,0 +1,14 @@
+src/
+tests/
+plans/
+docs/
+scripts/
+.github/
+.changeset/
+coverage/
+*.config.ts
+tsconfig.json
+biome.json
+.env*
+*.log
+.DS_Store
