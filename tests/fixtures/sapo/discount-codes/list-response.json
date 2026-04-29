@@ -1,0 +1,11 @@
+{
+  "discount_codes": [
+    {
+      "id": 3315351,
+      "usage_count": 0,
+      "code": "TESTPROBE_DELETE",
+      "created_on": "2026-04-29T19:33:13Z",
+      "modified_on": "2026-04-29T19:33:13Z"
+    }
+  ]
+}
