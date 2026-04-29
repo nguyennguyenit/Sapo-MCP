@@ -7,7 +7,7 @@
  * - gender field: Male | Female | Other (Sapo-specific)
  * - dob: birth date YYYY-MM-DD (Sapo-specific)
  * - state enum: enabled | disabled | invited | decline
- * - total_spent: integer VND (not decimal)
+ * - total_spent: FLOAT VND (Sapo serializes money with 4 decimals across all resources)
  * - addresses nested; see AddressSchema
  */
 
@@ -38,7 +38,7 @@ export const CustomerSchema = z
     dob: z.string().optional().nullable(),
     orders_count: z.number().int().optional(),
     /** Total amount spent in integer VND */
-    total_spent: z.number().int().optional(),
+    total_spent: z.number().optional(),
     tags: z.string().optional().nullable(),
     note: z.string().optional().nullable(),
     last_order_id: z.number().int().optional().nullable(),

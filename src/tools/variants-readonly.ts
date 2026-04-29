@@ -68,7 +68,7 @@ export function registerVariantReadTools(server: McpServer, client: SapoClient):
     'get_variant',
     {
       description:
-        'Get a single product variant by ID. Returns price (integer VND), SKU, barcode, inventory quantity, and option values.',
+        'Get a single product variant by ID. Returns price (VND, float with 4 decimals), SKU, barcode, inventory quantity, and option values.',
       inputSchema: {
         variant_id: z.number().int().describe('Variant ID (numeric). Required.'),
       },

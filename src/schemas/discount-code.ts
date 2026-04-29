@@ -22,12 +22,16 @@ export const DiscountCodeSchema = z
   })
   .passthrough();
 
-export const DiscountCodeListResponseSchema = z.object({
-  discount_codes: z.array(DiscountCodeSchema),
-});
+export const DiscountCodeListResponseSchema = z
+  .object({
+    discount_codes: z.array(DiscountCodeSchema),
+  })
+  .passthrough();
 
-export const DiscountCodeSingleResponseSchema = z.object({
-  discount_code: DiscountCodeSchema,
-});
+export const DiscountCodeSingleResponseSchema = z
+  .object({
+    discount_code: DiscountCodeSchema,
+  })
+  .passthrough();
 
 export type DiscountCode = z.infer<typeof DiscountCodeSchema>;

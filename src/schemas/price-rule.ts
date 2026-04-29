@@ -105,12 +105,16 @@ export const PriceRuleSchema = z
   })
   .passthrough();
 
-export const PriceRuleListResponseSchema = z.object({
-  price_rules: z.array(PriceRuleSchema),
-});
+export const PriceRuleListResponseSchema = z
+  .object({
+    price_rules: z.array(PriceRuleSchema),
+  })
+  .passthrough();
 
-export const PriceRuleSingleResponseSchema = z.object({
-  price_rule: PriceRuleSchema,
-});
+export const PriceRuleSingleResponseSchema = z
+  .object({
+    price_rule: PriceRuleSchema,
+  })
+  .passthrough();
 
 export type PriceRule = z.infer<typeof PriceRuleSchema>;

@@ -161,12 +161,16 @@ export const DraftOrderSchema = z
   })
   .passthrough();
 
-export const DraftOrderListResponseSchema = z.object({
-  draft_orders: z.array(DraftOrderSchema),
-});
+export const DraftOrderListResponseSchema = z
+  .object({
+    draft_orders: z.array(DraftOrderSchema),
+  })
+  .passthrough();
 
-export const DraftOrderSingleResponseSchema = z.object({
-  draft_order: DraftOrderSchema,
-});
+export const DraftOrderSingleResponseSchema = z
+  .object({
+    draft_order: DraftOrderSchema,
+  })
+  .passthrough();
 
 export type DraftOrder = z.infer<typeof DraftOrderSchema>;
