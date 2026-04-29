@@ -37,26 +37,23 @@ function getRegisteredToolNames(server: McpServer): string[] {
   return Object.keys(tools);
 }
 
-describe('registerPosOnlineTools (Phase 3a)', () => {
+describe('registerPosOnlineTools (Phase 3a + 3b)', () => {
   it('registers without throwing', () => {
     const server = makeServer();
     const client = makeClient();
     expect(() => registerPosOnlineTools(server, client, fakeConfig)).not.toThrow();
   });
 
-  it('registers exactly 11 read tools in Phase 3a', () => {
+  it('registers exactly 27 tools after Phase 3a + 3b', () => {
     const server = makeServer();
     const client = makeClient();
     registerPosOnlineTools(server, client, fakeConfig);
 
     const names = getRegisteredToolNames(server);
-    // Phase 3a tools: 5 customer + 1 address + 4 product + 2 variant + 1 inventory = 13
-    // But spec says: list_customers, get_customer, search_customers, count_customers, list_customer_orders (5)
-    // + list_customer_addresses (1)
-    // + list_products, get_product, search_products, count_products (4)
-    // + list_variants_for_product, get_variant (2)
-    // + get_inventory_levels (1) = 13 total
-    expect(names).toHaveLength(13);
+    // Phase 3a (13): 5 customer + 1 address + 4 product + 2 variant + 1 inventory
+    // Phase 3b (14): 4 orders + 2 transactions + 4 fulfillments + 4 order-returns
+    // Total: 27
+    expect(names).toHaveLength(27);
   });
 
   it('registers all expected customer tools', () => {
@@ -110,5 +107,51 @@ describe('registerPosOnlineTools (Phase 3a)', () => {
 
     const names = getRegisteredToolNames(server);
     expect(names).toContain('get_inventory_levels');
+  });
+
+  it('registers all Phase 3b order tools', () => {
+    const server = makeServer();
+    const client = makeClient();
+    registerPosOnlineTools(server, client, fakeConfig);
+
+    const names = getRegisteredToolNames(server);
+    expect(names).toContain('list_orders');
+    expect(names).toContain('get_order');
+    expect(names).toContain('count_orders');
+    expect(names).toContain('search_orders');
+  });
+
+  it('registers all Phase 3b transaction tools', () => {
+    const server = makeServer();
+    const client = makeClient();
+    registerPosOnlineTools(server, client, fakeConfig);
+
+    const names = getRegisteredToolNames(server);
+    expect(names).toContain('list_order_transactions');
+    expect(names).toContain('create_order_transaction');
+  });
+
+  it('registers all Phase 3b fulfillment tools', () => {
+    const server = makeServer();
+    const client = makeClient();
+    registerPosOnlineTools(server, client, fakeConfig);
+
+    const names = getRegisteredToolNames(server);
+    expect(names).toContain('list_fulfillments_for_order');
+    expect(names).toContain('get_fulfillment');
+    expect(names).toContain('create_fulfillment');
+    expect(names).toContain('update_fulfillment_tracking');
+  });
+
+  it('registers all Phase 3b order return tools', () => {
+    const server = makeServer();
+    const client = makeClient();
+    registerPosOnlineTools(server, client, fakeConfig);
+
+    const names = getRegisteredToolNames(server);
+    expect(names).toContain('list_order_returns');
+    expect(names).toContain('get_order_return');
+    expect(names).toContain('create_order_return');
+    expect(names).toContain('refund_order_return');
   });
 });

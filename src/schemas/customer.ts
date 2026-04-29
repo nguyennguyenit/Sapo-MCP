@@ -15,7 +15,13 @@ import { z } from 'zod';
 import { AddressSchema } from './address.js';
 
 export const CustomerStateEnum = z.enum(['enabled', 'disabled', 'invited', 'decline']);
-export const CustomerGenderEnum = z.enum(['Male', 'Female', 'Other']);
+/**
+ * Gender enum — Sapo uses mixed casing depending on context:
+ * - Customer resource: "Male" | "Female" | "Other" (capitalized)
+ * - Embedded customer in order: "other" (lowercase) observed in live fixture
+ * Accept both via union.
+ */
+export const CustomerGenderEnum = z.enum(['Male', 'Female', 'Other', 'male', 'female', 'other']);
 
 export const CustomerSchema = z
   .object({

@@ -1,0 +1,31 @@
+{
+  "transactions": [
+    {
+      "id": 148295019,
+      "parent_id": null,
+      "order_id": 174107276,
+      "checkout_token": null,
+      "refund_id": null,
+      "location_id": 825802,
+      "source_name": "facebook",
+      "client_id": null,
+      "user_id": 720560,
+      "device_id": null,
+      "gateway": null,
+      "amount": 150000.0,
+      "currency": "VND",
+      "kind": "sale",
+      "status": "pending",
+      "authorization": null,
+      "error_code": null,
+      "message": null,
+      "cause_type": "customer_checkout",
+      "payment_info": null,
+      "payment_details": null,
+      "receipt": null,
+      "created_on": "2026-04-29T19:17:27Z",
+      "processed_at": "2026-04-29T19:17:27Z",
+      "test": false
+    }
+  ]
+}
