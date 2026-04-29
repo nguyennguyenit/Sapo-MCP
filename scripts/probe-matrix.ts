@@ -36,7 +36,8 @@ const BUCKET_A: ProbeEntry[] = [
     method: 'GET',
     critical: true,
     bucket: 'A',
-    notes: 'Single-resource endpoint; 401 here = auth completely broken. Sapo uses /admin/store.json (NOT /admin/shop.json — that returns 403 even with full perms)',
+    notes:
+      'Single-resource endpoint; 401 here = auth completely broken. Sapo uses /admin/store.json (NOT /admin/shop.json — that returns 403 even with full perms)',
   },
   {
     resource: 'products',

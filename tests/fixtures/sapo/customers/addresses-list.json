@@ -1,0 +1,46 @@
+{
+  "addresses": [
+    {
+      "id": 2001,
+      "customer_id": 1001,
+      "first_name": "Văn A",
+      "last_name": "Nguyễn",
+      "address1": "123 Nguyễn Huệ",
+      "address2": "Tầng 5",
+      "city": "Hà Nội",
+      "province": "Hà Nội",
+      "province_code": "HN",
+      "district": "Hoàn Kiếm",
+      "ward": "Lý Thái Tổ",
+      "country": "Vietnam",
+      "country_code": "VNM",
+      "zip": "10000",
+      "phone": "0901234567",
+      "company": "",
+      "default": true,
+      "created_on": "2024-01-10T08:00:00Z",
+      "modified_on": "2024-04-01T10:00:00Z"
+    },
+    {
+      "id": 2002,
+      "customer_id": 1001,
+      "first_name": "Văn A",
+      "last_name": "Nguyễn",
+      "address1": "456 Lê Lợi",
+      "address2": null,
+      "city": "Hồ Chí Minh",
+      "province": "Hồ Chí Minh",
+      "province_code": "HCM",
+      "district": "Quận 1",
+      "ward": "Bến Nghé",
+      "country": "Vietnam",
+      "country_code": "VNM",
+      "zip": "70000",
+      "phone": "0901234567",
+      "company": null,
+      "default": false,
+      "created_on": "2024-02-15T10:00:00Z",
+      "modified_on": "2024-02-15T10:00:00Z"
+    }
+  ]
+}

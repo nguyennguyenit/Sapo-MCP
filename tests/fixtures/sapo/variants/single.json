@@ -1,0 +1,25 @@
+{
+  "variant": {
+    "id": 4001,
+    "product_id": 3001,
+    "title": "Đỏ / S",
+    "price": 150000,
+    "compare_at_price": 200000,
+    "sku": "ATN-DO-S",
+    "barcode": "8934567890001",
+    "option1": "Đỏ",
+    "option2": "S",
+    "option3": null,
+    "inventory_quantity": 20,
+    "inventory_management": "sapo",
+    "inventory_policy": "deny",
+    "position": 1,
+    "image_id": null,
+    "weight": 200,
+    "weight_unit": "g",
+    "requires_shipping": true,
+    "taxable": true,
+    "created_on": "2024-01-15T09:00:00Z",
+    "modified_on": "2024-04-10T11:00:00Z"
+  }
+}

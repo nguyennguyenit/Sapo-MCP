@@ -1,0 +1,33 @@
+{
+  "variants": [
+    {
+      "id": 147237422,
+      "inventory_item_id": 147237420,
+      "barcode": null,
+      "sku": "SKU30",
+      "price": 150000.0,
+      "compare_at_price": 0.0,
+      "option1": "Default Title",
+      "option2": null,
+      "option3": null,
+      "taxable": false,
+      "inventory_management": "bizweb",
+      "inventory_policy": "deny",
+      "inventory_quantity": 100,
+      "lot_management": false,
+      "requires_shipping": true,
+      "weight": 100.0,
+      "weight_unit": "g",
+      "unit": null,
+      "image_id": 98022551,
+      "position": 1,
+      "created_on": "2025-05-13T08:53:30Z",
+      "modified_on": "2025-05-13T08:53:30Z",
+      "title": "Default Title",
+      "grams": 100,
+      "product_id": 46419129,
+      "type": "normal",
+      "requires_components": false
+    }
+  ]
+}

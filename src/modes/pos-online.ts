@@ -1,23 +1,37 @@
 /**
- * Mode: pos-online — placeholder for Phase 3 implementation.
+ * Mode: pos-online — online POS operations.
  *
- * This mode provides tools for online POS operations:
- * orders, customers, fulfillments, draft orders, price rules, etc.
+ * Phase 3a (read tools — Batch 1):
+ * - Customers: list, get, search, count, list_orders
+ * - Customer Addresses: list
+ * - Products (read): list, get, search, count
+ * - Variants (read): list_for_product, get
+ * - Inventory (read): get_levels
  *
- * Tools will be implemented in Phase 3 (TDD).
+ * Phase 3b/3c (write + destructive tools — pending):
+ * - Orders, Draft Orders, Fulfillments, Returns, Transactions
+ * - Price Rules, Discount Codes
+ * - Customer create/update/delete, Product create/update/delete
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SapoClient } from '../client/http.js';
 import type { SapoConfig } from '../config.js';
+import { registerCustomerAddressTools } from '../tools/customer-addresses.js';
+import { registerCustomerTools } from '../tools/customers.js';
+import { registerInventoryReadTools } from '../tools/inventory-readonly.js';
+import { registerProductReadTools } from '../tools/products-readonly.js';
+import { registerVariantReadTools } from '../tools/variants-readonly.js';
 
 export function registerPosOnlineTools(
-  _server: McpServer,
-  _client: SapoClient,
+  server: McpServer,
+  client: SapoClient,
   _config: SapoConfig,
 ): void {
-  // Phase 3: implement 40+ tools for pos-online mode
-  // Tools: list_orders, get_order, create_order, cancel_order,
-  //        list_customers, get_customer, create_customer, update_customer,
-  //        list_fulfillments, create_fulfillment, list_draft_orders, etc.
+  // Foundation read tools — Phase 3a
+  registerCustomerTools(server, client);
+  registerCustomerAddressTools(server, client);
+  registerProductReadTools(server, client);
+  registerVariantReadTools(server, client);
+  registerInventoryReadTools(server, client);
 }

@@ -1,0 +1,58 @@
+{
+  "inventory_levels": [
+    {
+      "id": 87807153,
+      "variant_id": 147237422,
+      "store_id": 574092,
+      "inventory_item_id": 147237420,
+      "location_id": 825802,
+      "on_hand": 100.0,
+      "available": 100.0,
+      "committed": 0.0,
+      "incoming": 0.0,
+      "incoming_owned": 0.0,
+      "incoming_not_owned": 0.0,
+      "packed": 0.0,
+      "reserved": 0.0,
+      "unavailable": 0.0,
+      "created_at": "2025-05-13T08:53:30Z",
+      "updated_at": "2025-05-13T08:53:30Z"
+    },
+    {
+      "id": 87807151,
+      "variant_id": 147237420,
+      "store_id": 574092,
+      "inventory_item_id": 147237418,
+      "location_id": 825802,
+      "on_hand": 100.0,
+      "available": 100.0,
+      "committed": 0.0,
+      "incoming": 0.0,
+      "incoming_owned": 0.0,
+      "incoming_not_owned": 0.0,
+      "packed": 0.0,
+      "reserved": 0.0,
+      "unavailable": 0.0,
+      "created_at": "2025-05-13T08:53:29Z",
+      "updated_at": "2025-05-13T08:53:29Z"
+    },
+    {
+      "id": 87807150,
+      "variant_id": 147237419,
+      "store_id": 574092,
+      "inventory_item_id": 147237417,
+      "location_id": 825802,
+      "on_hand": 100.0,
+      "available": 100.0,
+      "committed": 0.0,
+      "incoming": 0.0,
+      "incoming_owned": 0.0,
+      "incoming_not_owned": 0.0,
+      "packed": 0.0,
+      "reserved": 0.0,
+      "unavailable": 0.0,
+      "created_at": "2025-05-13T08:53:28Z",
+      "updated_at": "2025-05-13T08:53:28Z"
+    }
+  ]
+}

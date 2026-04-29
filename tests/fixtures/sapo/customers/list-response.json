@@ -1,0 +1,48 @@
+{
+  "customers": [
+    {
+      "id": 1001,
+      "email": "nguyen.van.a@example.com",
+      "phone": "0901234567",
+      "first_name": "Văn A",
+      "last_name": "Nguyễn",
+      "state": "enabled",
+      "accepts_marketing": false,
+      "verified_email": true,
+      "gender": "Male",
+      "dob": "1990-05-15",
+      "orders_count": 5,
+      "total_spent": 2500000,
+      "tags": "loyal,vip",
+      "note": "Khách hàng thân thiết",
+      "last_order_id": 5001,
+      "last_order_name": "#1005",
+      "default_address": null,
+      "addresses": [],
+      "created_on": "2024-01-10T08:00:00Z",
+      "modified_on": "2024-04-15T12:30:00Z"
+    },
+    {
+      "id": 1002,
+      "email": "tran.thi.b@example.com",
+      "phone": "0912345678",
+      "first_name": "Thị B",
+      "last_name": "Trần",
+      "state": "enabled",
+      "accepts_marketing": true,
+      "verified_email": false,
+      "gender": "Female",
+      "dob": null,
+      "orders_count": 1,
+      "total_spent": 500000,
+      "tags": "",
+      "note": null,
+      "last_order_id": 5002,
+      "last_order_name": "#1006",
+      "default_address": null,
+      "addresses": [],
+      "created_on": "2024-03-20T09:15:00Z",
+      "modified_on": "2024-04-20T14:00:00Z"
+    }
+  ]
+}
