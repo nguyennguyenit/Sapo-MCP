@@ -1,0 +1,39 @@
+# sapo-mcp HTTP transport — docker-compose example
+#
+# Usage:
+#   cp examples/docker-compose.yml docker-compose.yml
+#   # Fill in env values, then:
+#   docker compose up --build
+#
+# Connect from MCP Inspector / GoClaw:
+#   http://localhost:3333/mcp
+#   Authorization: Bearer ${SAPO_MCP_AUTH_TOKEN}
+
+services:
+  sapo-mcp:
+    build:
+      context: ..
+      dockerfile: examples/Dockerfile
+    ports:
+      - "3333:3333"
+    environment:
+      # ---- Required ----
+      SAPO_STORE: ${SAPO_STORE}
+      SAPO_API_KEY: ${SAPO_API_KEY}
+      SAPO_API_SECRET: ${SAPO_API_SECRET}
+      # ---- HTTP transport ----
+      # 0.0.0.0 = listen on all interfaces (container) — auth token MUST be set
+      SAPO_HTTP_HOST: 0.0.0.0
+      SAPO_HTTP_PORT: 3333
+      SAPO_MCP_AUTH_TOKEN: ${SAPO_MCP_AUTH_TOKEN}
+      # ---- Optional ----
+      SAPO_HTTP_MAX_SESSIONS: 100
+      SAPO_HTTP_SESSION_IDLE_MS: 1800000
+      # SAPO_HTTP_CORS_ORIGINS: "https://app.example.com"
+      SAPO_LOG_LEVEL: info
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:3333/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

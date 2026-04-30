@@ -36,7 +36,25 @@ const envSchema = z.object({
     .string()
     .optional()
     .transform((v) => v === '1' || v?.toLowerCase() === 'true'),
+  // HTTP transport (Phase 7) — only consulted when --transport=http
+  SAPO_HTTP_HOST: z.string().default('127.0.0.1'),
+  SAPO_HTTP_PORT: z.coerce.number().int().min(1).max(65535).default(3333),
+  SAPO_HTTP_MAX_SESSIONS: z.coerce.number().int().min(1).max(10_000).default(100),
+  // 30 minutes default
+  SAPO_HTTP_SESSION_IDLE_MS: z.coerce.number().int().min(1_000).default(1_800_000),
+  SAPO_MCP_AUTH_TOKEN: z.string().optional(),
+  // CSV; empty string disables CORS
+  SAPO_HTTP_CORS_ORIGINS: z.string().default(''),
 });
+
+export interface HttpTransportConfig {
+  host: string;
+  port: number;
+  maxSessions: number;
+  sessionIdleMs: number;
+  authToken?: string;
+  corsOrigins: string[];
+}
 
 export interface SapoConfig {
   store: string;
@@ -47,6 +65,7 @@ export interface SapoConfig {
   retryMax: number;
   logLevel: LogLevel;
   logPii: boolean;
+  http: HttpTransportConfig;
 }
 
 /**
@@ -110,6 +129,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SapoConfig {
   const apiSecret = resolveApiSecret(data.SAPO_API_SECRET_FILE, data.SAPO_API_SECRET);
   const allowOps = parseAllowOps(data.SAPO_ALLOW_OPS);
 
+  const corsOrigins = data.SAPO_HTTP_CORS_ORIGINS.trim()
+    ? data.SAPO_HTTP_CORS_ORIGINS.split(',')
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
+
   return {
     store: data.SAPO_STORE,
     apiKey: data.SAPO_API_KEY,
@@ -119,5 +144,30 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): SapoConfig {
     retryMax: data.SAPO_RETRY_MAX,
     logLevel: data.SAPO_LOG_LEVEL,
     logPii: data.SAPO_LOG_PII,
+    http: {
+      host: data.SAPO_HTTP_HOST,
+      port: data.SAPO_HTTP_PORT,
+      maxSessions: data.SAPO_HTTP_MAX_SESSIONS,
+      sessionIdleMs: data.SAPO_HTTP_SESSION_IDLE_MS,
+      authToken: data.SAPO_MCP_AUTH_TOKEN,
+      corsOrigins,
+    },
   };
+}
+
+/**
+ * Validate HTTP transport-specific invariants.
+ * Called only when transport=http to fail-fast at startup.
+ *
+ * Invariants:
+ *   - If host is non-loopback, SAPO_MCP_AUTH_TOKEN MUST be set.
+ *     Reason: binding to 0.0.0.0 / public IP without auth is an open relay.
+ */
+export function validateHttpConfig(http: HttpTransportConfig): void {
+  const loopback = new Set(['127.0.0.1', 'localhost', '::1']);
+  if (!loopback.has(http.host) && !http.authToken) {
+    throw new Error(
+      `SAPO_HTTP_HOST is "${http.host}" (non-loopback). SAPO_MCP_AUTH_TOKEN is required to prevent unauthenticated remote access.`,
+    );
+  }
 }
