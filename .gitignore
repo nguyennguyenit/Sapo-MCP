@@ -8,3 +8,6 @@ coverage/
 
 # Claude Code local state
 .claude/
+
+# Internal planning docs (not for public repo)
+plans/
