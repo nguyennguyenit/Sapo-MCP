@@ -1,14 +1,19 @@
 # sapo-mcp
 
+[![npm version](https://img.shields.io/npm/v/sapo-mcp.svg)](https://www.npmjs.com/package/sapo-mcp)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node 20+](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](https://nodejs.org)
+
 Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerce platform.
 
 > **Status:** Early development (v0.x). API and tool names may change before 1.0.0.
+> 0.1.0 ships `pos-online` (48 tools) and `web` (31 tools) modes.
 
 ## Features
 
-- **4 modes:** `pos-online`, `pos-counter`, `web`, `analytics`
+- **2 modes in 0.1.0:** `pos-online`, `web` (`pos-counter` and `analytics` in later releases)
 - **Safe by default:** Destructive ops gated via `SAPO_ALLOW_OPS` (default: none)
-- **Runs locally:** stdio transport for Claude Desktop
+- **Runs locally:** stdio transport for Claude Desktop (HTTP transport in 0.2.0)
 - **Single-tenant:** One shop per server instance via Private App credentials
 
 ## Quick Start
@@ -37,6 +42,17 @@ Create a Private App at [developers.sapo.vn](https://developers.sapo.vn):
 }
 ```
 
+Use `--mode=pos-online,web` to register both modes at once (union of tools, shared variants registered once).
+
+### 3. CLI Flags
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--mode=<modes>` | `pos-online` | Comma-separated list of modes to activate |
+| `--transport=<t>` | `stdio` | Transport type (`stdio`; `http` coming in 0.2.0) |
+| `--help` | — | Print usage and exit |
+| `--version` | — | Print version and exit |
+
 ## Environment Variables
 
 | Variable | Required | Default | Description |
@@ -56,10 +72,47 @@ Create a Private App at [developers.sapo.vn](https://developers.sapo.vn):
 
 | Mode | Status | Description |
 |------|--------|-------------|
-| `pos-online` | Phase 3 | Online orders, customers, fulfillment |
-| `web` | Phase 4 | Storefront, collections, articles, SEO |
-| `pos-counter` | Phase 6 | POS counter, inventory, suppliers |
-| `analytics` | Phase 8 | Revenue, top products, LTV, low stock |
+| `pos-online` | 0.1.0 | Online orders, customers, fulfillment |
+| `web` | 0.1.0 | Storefront, collections, articles, SEO |
+| `pos-counter` | Future | POS counter, inventory, suppliers |
+| `analytics` | Future | Revenue, top products, LTV, low stock |
+
+## Available Tools
+
+### `pos-online` — 48 tools
+
+Covers online order management, draft orders, fulfillments, returns, customers, addresses, price rules, discount codes, products (read), variants (read), inventory (read), and transactions.
+
+9 tools are destructive and gated via `SAPO_ALLOW_OPS`.
+
+### `web` — 31 tools
+
+Covers collections, blogs, articles, pages, script tags, products SEO, store info, and variants (read).
+
+6 tools are destructive and gated via `SAPO_ALLOW_OPS`.
+
+### Multi-mode
+
+`--mode=pos-online,web` activates the union of both sets. Tools shared across modes (e.g. variant reads) are registered once.
+
+## Destructive Operations
+
+Destructive tools (cancel, delete, bulk-delete) are blocked by default. To enable specific categories:
+
+```bash
+# Allow order cancellation and standard deletes only
+SAPO_ALLOW_OPS=cancel,delete npx sapo-mcp --mode=pos-online
+```
+
+Supported categories: `cancel`, `delete`, `delete_strict`.
+
+All destructive tool calls also require `confirm: true` in the tool arguments — this prevents accidental execution when an LLM calls the tool without explicit intent.
+
+## Security
+
+ENV credentials are visible to other processes via `ps` / `/proc/<pid>/environ` on shared hosts. Use `SAPO_API_SECRET_FILE` to pass the secret via a file instead of an env var where possible.
+
+Note: full secret-file isolation (reading the secret only at startup, then clearing) is tracked for 0.2.0.
 
 ## Probing
 
