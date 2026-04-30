@@ -1,23 +1,23 @@
 /**
- * Mode: analytics — placeholder for Phase 8 implementation.
+ * Mode: analytics — composed read-only reporting tools (Phase 8a).
  *
- * This mode provides composed analytics tools:
- * revenue summary, top products, LTV analysis, low stock alerts.
+ * Registers 10 composed tools that aggregate data from pos-online and
+ * pos-counter endpoints into reports. All tools are read-only.
  *
- * Tools will be implemented in Phase 8 (composed from pos-online data).
+ * Phase 8b (cashflow / pnl / supplier_purchase / daily_pos_report) is
+ * deferred to post-1.0.0 — those endpoints are internal-only and
+ * forbidden for Private App credentials. See out-of-scope.md.
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SapoClient } from '../client/http.js';
 import type { SapoConfig } from '../config.js';
+import { registerAnalyticsToolsImpl } from '../tools/analytics.js';
 
 export function registerAnalyticsTools(
-  _server: McpServer,
-  _client: SapoClient,
-  _config: SapoConfig,
+  server: McpServer,
+  client: SapoClient,
+  config: SapoConfig,
 ): void {
-  // Phase 8a: implement 9 Bucket-A analytics tools
-  // Phase 8b: implement 6 Bucket-B analytics tools (requires pos-counter)
-  // Tools: revenue_summary, top_products_by_revenue, low_stock_alert,
-  //        customer_ltv, order_fulfillment_rate, etc.
+  registerAnalyticsToolsImpl(server, client, config);
 }

@@ -84,7 +84,7 @@ Use `--mode=pos-online,web` to register both modes at once (union of tools, shar
 | `pos-online` | 0.1.0 | Online orders, customers, fulfillment |
 | `web` | 0.1.0 | Storefront, collections, articles, SEO |
 | `pos-counter` | 0.2.0 | POS counter: locations, inventory write, suppliers, shifts, stock transfers |
-| `analytics` | Future | Revenue, top products, LTV, low stock |
+| `analytics` | 0.3.0 | Composed reports: revenue, top products/customers, LTV, low stock, tax, channel breakdown, discount usage, shift report (10 tools) |
 
 ## Available Tools
 
@@ -99,6 +99,18 @@ Covers online order management, draft orders, fulfillments, returns, customers, 
 Covers collections, blogs, articles, pages, script tags, products SEO, store info, and variants (read).
 
 6 tools are destructive and gated via `SAPO_ALLOW_OPS`.
+
+### `analytics` — 10 tools (0.3.0)
+
+Composed read-only reports aggregated from order/inventory/variant data:
+
+- `revenue_summary` — totals grouped by day/week/month
+- `top_products`, `top_customers`, `customer_ltv`
+- `inventory_low_stock`, `inventory_value`
+- `tax_summary`, `online_vs_counter_breakdown`, `discount_usage_report`
+- `shift_report` — POS shift summary with payment-method breakdown
+
+All tools auto-paginate up to `SAPO_MAX_AUTO_PAGES`; results carry `truncated: true` when the cap is hit.
 
 ### `pos-counter` — 15 tools (0.2.0)
 

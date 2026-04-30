@@ -16,6 +16,14 @@ const fakeConfig: SapoConfig = {
   retryMax: 3,
   logLevel: 'info',
   logPii: false,
+  http: {
+    host: '127.0.0.1',
+    port: 3333,
+    maxSessions: 100,
+    sessionIdleMs: 1_800_000,
+    authToken: undefined,
+    corsOrigins: [],
+  },
 };
 
 describe('createServer', () => {
