@@ -7,13 +7,13 @@
     "name": "Plateau Nguyen",
     "email": "nguyennlt.ncc@gmail.com"
   },
-  "homepage": "https://github.com/plateau/sapo-mcp",
+  "homepage": "https://github.com/nguyennguyenit/Sapo-MCP",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/plateau/sapo-mcp.git"
+    "url": "git+https://github.com/nguyennguyenit/Sapo-MCP.git"
   },
   "bugs": {
-    "url": "https://github.com/plateau/sapo-mcp/issues"
+    "url": "https://github.com/nguyennguyenit/Sapo-MCP/issues"
   },
   "type": "module",
   "bin": {

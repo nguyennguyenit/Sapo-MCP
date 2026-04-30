@@ -114,7 +114,7 @@ npx -y sapo-mcp --help
 # (nếu lỗi "command not found", dùng absolute: ~/.npm/_npx/.../bin/sapo-mcp)
 
 # Read probe (an toàn — chỉ GET)
-git clone https://github.com/plateau/sapo-mcp.git && cd sapo-mcp
+git clone https://github.com/nguyennguyenit/Sapo-MCP.git && cd sapo-mcp
 npm ci
 SAPO_STORE=mystoredev SAPO_API_KEY=xxx SAPO_API_SECRET=yyy npm run probe
 # Output: plans/.../probe-results.json + verify-report.md
@@ -202,7 +202,7 @@ Repo `modelcontextprotocol/servers` có README.md với danh sách servers theo 
 Thêm dòng (sắp xếp alphabetical):
 
 ```markdown
-- **[Sapo](https://github.com/plateau/sapo-mcp)** - Sapo.vn POS & e-commerce platform — orders, customers, products, inventory, analytics across `pos-online` / `web` / `pos-counter` / `analytics` modes.
+- **[Sapo](https://github.com/nguyennguyenit/Sapo-MCP)** - Sapo.vn POS & e-commerce platform — orders, customers, products, inventory, analytics across `pos-online` / `web` / `pos-counter` / `analytics` modes.
 ```
 
 ### 3.3 PR
