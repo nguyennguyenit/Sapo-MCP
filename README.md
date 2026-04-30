@@ -184,23 +184,68 @@ Covers physical POS counter operations: locations, payment methods, inventory wr
 
 1 tool is destructive and gated via `SAPO_ALLOW_OPS=inventory_set`: `set_inventory_level`.
 
-> **Warning: 4 undocumented endpoints in pos-counter**
->
-> The following endpoints are not listed in Sapo official docs. They were verified working
-> on 2026-04-30 via API probe but **schema may change without notice**:
-> - `locations` (`list_locations`, `get_location`)
-> - `payment_methods` (`list_payment_methods`)
-> - `suppliers` (`list_suppliers`, `get_supplier`)
-> - `pos_shifts` (`list_pos_shifts`, `get_pos_shift`)
-> - `stock_transfers` (`list_stock_transfers`, `get_stock_transfer`)
->
-> All undocumented tool descriptions begin with `[UNDOCUMENTED endpoint, verified 2026-04-30, schema may change]`.
-
 > **Note: 5 internal-only endpoints excluded from pos-counter**
 >
 > `purchase_orders`, `purchase_returns`, `stock_adjustments`, `cash_transactions`, and `cashbook`
 > return HTTP 403 for Private App credentials. These require an OAuth Partner App.
 > Tracked for post-1.0.0 roadmap. See [`out-of-scope.md`](plans/260430-1000-sapo-mcp-implementation/out-of-scope.md).
+
+### Tool Verification Status
+
+Verification levels for the 107 tools (last updated 2026-04-30):
+
+| Symbol | Level | What it means |
+|---|---|---|
+| ✅ | **Canary-monitored** | Endpoint + schema verified live; daily nightly probe via `.github/workflows/canary.yml` |
+| 🟢 | **Live-verified** | Endpoint hit during development, schema captured to fixture, not in daily canary |
+| 🟡 | **Docs-only** | Schema from `docs/sapo-api-reference.md` (Sapo official); mock tests only, no live probe |
+| 🔵 | **Composed** | Not a Sapo endpoint — internal aggregation logic, logic-tested via unit tests |
+| 🚨 | **Broken** | Known non-functional, see notes |
+
+#### Canary-monitored endpoints (drift detected within 24h)
+
+| Resource | Mode(s) | Endpoint |
+|---|---|---|
+| store | all | `/admin/store.json` |
+| products (read) | pos-online, pos-counter | `/admin/products.json` |
+| orders | pos-online, pos-counter | `/admin/orders.json` |
+| customers | pos-online, pos-counter | `/admin/customers.json` |
+| inventory_levels | pos-online, pos-counter | `/admin/inventory_levels.json` |
+| locations | pos-counter | `/admin/locations.json` |
+| draft_orders | pos-online | `/admin/draft_orders.json` |
+| price_rules | pos-online | `/admin/price_rules.json` |
+| pages | web | `/admin/pages.json` |
+| suppliers | pos-counter | `/admin/suppliers.json` |
+| stock_transfers | pos-counter | `/admin/stock_transfers.json` |
+| payment_methods | pos-counter | `/admin/payment_methods.json` |
+
+#### Live-verified (not in canary)
+
+- **Refunds** (3 tools, pos-online): `list_refunds`, `get_refund`, `create_refund` — schema verified via live POST 2026-04-30 against order #1001
+- **Order Transactions** (2): captured fixture from live transaction
+- **Fulfillments** (4): probed during refunds investigation
+- **POS orders** (2): use documented `/admin/orders?source_name=pos` filter
+- **Customers/Customer-addresses write** (7): user-verified during 0.6.0 release
+
+#### Docs-only (mock-tested)
+
+Schema from Sapo official `docs/sapo-api-reference.md` sections 4.1–4.26. Tools work per documentation but not live-probed yet:
+
+- Articles, Blogs, Collections, Discount codes (write), Inventory (write), Price rules (write), Product SEO, Script tags, Variants (write), and most destructive `delete_*` tools
+- Risk: schema drift undetected until a user hits a 422
+
+#### Composed (10 tools, analytics mode)
+
+`revenue_summary`, `top_products`, `top_customers`, `customer_ltv`, `tax_summary`, `online_vs_counter_breakdown`, `discount_usage_report`, `shift_report`, `inventory_low_stock`, `inventory_value` — these aggregate data from multiple Sapo endpoints; correctness verified via unit tests, not endpoint contracts.
+
+#### 🚨 Broken — needs investigation
+
+| Tool | Resource | Issue |
+|---|---|---|
+| `list_pos_shifts` | pos_shifts | `/admin/pos_shifts.json` returns `Content-Type: text/html` (Sapo POS web app shell), not JSON. |
+| `get_pos_shift` | pos_shifts | Same as above. JSON API endpoint not yet located. |
+
+These 2 tools may fail at runtime. POS shift management currently requires admin UI.
 
 For full read access (customers, products) combined with POS counter tools, use:
 ```
