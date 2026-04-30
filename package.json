@@ -17,7 +17,7 @@
   },
   "type": "module",
   "bin": {
-    "sapo-mcp": "./dist/index.mjs"
+    "sapo-mcp": "dist/index.mjs"
   },
   "exports": {
     ".": "./dist/index.mjs"
