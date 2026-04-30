@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Resources + Prompts + webhook receiver + OAuth 2.0 multi-tenant support
 > (see [Post-1.0 roadmap](README.md#post-10-roadmap)).
 
+## [0.6.0] — 2026-04-30
+
+### Added
+
+- **Customer write tools (pos-online):** `create_customer`, `update_customer` — POST/PUT `/admin/customers.json`. Email or phone required for create; partial update for existing customers.
+- **Customer address write tools (pos-online):** `add_customer_address`, `update_customer_address`, `set_default_customer_address` — wraps Sapo's dedicated default endpoint (`PUT /customers/{id}/addresses/{addr_id}/default.json`).
+- Schemas: `AddressSingleResponseSchema` for POST/PUT address responses.
+
+### Fixed
+
+- `search_customers` now calls `/admin/customers.json?query=…` instead of `/admin/customers/search.json`. The latter is internal-only and returns 403 for Private Apps even with full `read_customers` scope. Same query semantics, no breaking change to tool inputs/outputs.
+
+### Notes
+
+- Customer write tools are **not gated** under `SAPO_ALLOW_OPS` — consistent with `create_article`, `update_collection`, etc. Sapo Private App scope (`write_customers`) remains the auth gate. `delete_customer` continues to be gated under `delete_strict`.
+- Tool count per mode updated: pos-online now exposes 53 tools with `SAPO_ALLOW_OPS=*` (44 read+write + 9 destructive), up from 48.
+
 ## [0.5.1] — 2026-04-30
 
 ### Fixed
