@@ -1,0 +1,16 @@
+{
+  "location": {
+    "id": 10001,
+    "name": "Chi nhánh Hà Nội",
+    "address1": "123 Phố Huế",
+    "address2": null,
+    "city": "Hà Nội",
+    "province": "Hà Nội",
+    "country": "VN",
+    "zip": "100000",
+    "phone": "***",
+    "active": true,
+    "created_on": "2024-01-01T08:00:00Z",
+    "modified_on": "2024-04-01T10:00:00Z"
+  }
+}

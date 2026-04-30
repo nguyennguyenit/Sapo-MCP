@@ -1,0 +1,28 @@
+{
+  "payment_methods": [
+    {
+      "id": 20001,
+      "name": "Tiền mặt",
+      "code": "cash",
+      "active": true,
+      "created_on": "2024-01-01T08:00:00Z",
+      "modified_on": "2024-01-01T08:00:00Z"
+    },
+    {
+      "id": 20002,
+      "name": "Chuyển khoản ngân hàng",
+      "code": "bank_transfer",
+      "active": true,
+      "created_on": "2024-01-01T08:00:00Z",
+      "modified_on": "2024-03-15T14:00:00Z"
+    },
+    {
+      "id": 20003,
+      "name": "Thẻ tín dụng / ghi nợ",
+      "code": "credit_card",
+      "active": true,
+      "created_on": "2024-01-01T08:00:00Z",
+      "modified_on": "2024-01-01T08:00:00Z"
+    }
+  ]
+}

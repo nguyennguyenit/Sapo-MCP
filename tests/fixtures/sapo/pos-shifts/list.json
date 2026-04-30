@@ -1,0 +1,26 @@
+{
+  "pos_shifts": [
+    {
+      "id": 40001,
+      "location_id": 10001,
+      "status": "closed",
+      "opening_amount": 500000.0,
+      "closing_amount": 1500000.0,
+      "opened_at": "2026-04-29T08:00:00Z",
+      "closed_at": "2026-04-29T20:00:00Z",
+      "created_on": "2026-04-29T08:00:00Z",
+      "modified_on": "2026-04-29T20:05:00Z"
+    },
+    {
+      "id": 40002,
+      "location_id": 10001,
+      "status": "open",
+      "opening_amount": 500000.0,
+      "closing_amount": null,
+      "opened_at": "2026-04-30T08:00:00Z",
+      "closed_at": null,
+      "created_on": "2026-04-30T08:00:00Z",
+      "modified_on": "2026-04-30T08:00:00Z"
+    }
+  ]
+}

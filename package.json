@@ -72,6 +72,7 @@
     "typecheck": "tsc --noEmit",
     "probe": "tsx scripts/probe-read.ts",
     "probe:write": "tsx scripts/probe-write.ts",
+    "capture:fixtures": "tsx scripts/capture-fixtures.ts",
     "release": "changeset publish",
     "ci": "npm run typecheck && npm run lint && npm run test:coverage && npm run build"
   },

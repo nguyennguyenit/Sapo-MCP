@@ -8,10 +8,11 @@ Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerc
 
 > **Status:** Early development (v0.x). API and tool names may change before 1.0.0.
 > 0.1.0 ships `pos-online` (48 tools) and `web` (31 tools) modes.
+> 0.2.0 adds `pos-counter` (15 tools) — physical POS counter operations.
 
 ## Features
 
-- **2 modes in 0.1.0:** `pos-online`, `web` (`pos-counter` and `analytics` in later releases)
+- **3 modes in 0.2.0:** `pos-online`, `web`, `pos-counter` (`analytics` in a later release)
 - **Safe by default:** Destructive ops gated via `SAPO_ALLOW_OPS` (default: none)
 - **Runs locally:** stdio transport for Claude Desktop (HTTP transport in 0.2.0)
 - **Single-tenant:** One shop per server instance via Private App credentials
@@ -74,7 +75,7 @@ Use `--mode=pos-online,web` to register both modes at once (union of tools, shar
 |------|--------|-------------|
 | `pos-online` | 0.1.0 | Online orders, customers, fulfillment |
 | `web` | 0.1.0 | Storefront, collections, articles, SEO |
-| `pos-counter` | Future | POS counter, inventory, suppliers |
+| `pos-counter` | 0.2.0 | POS counter: locations, inventory write, suppliers, shifts, stock transfers |
 | `analytics` | Future | Revenue, top products, LTV, low stock |
 
 ## Available Tools
@@ -91,6 +92,35 @@ Covers collections, blogs, articles, pages, script tags, products SEO, store inf
 
 6 tools are destructive and gated via `SAPO_ALLOW_OPS`.
 
+### `pos-counter` — 15 tools (0.2.0)
+
+Covers physical POS counter operations: locations, payment methods, inventory write (adjust/connect/set), variant update, POS orders (filtered), suppliers, POS shifts, and stock transfers.
+
+1 tool is destructive and gated via `SAPO_ALLOW_OPS=inventory_set`: `set_inventory_level`.
+
+> **Warning: 4 undocumented endpoints in pos-counter**
+>
+> The following endpoints are not listed in Sapo official docs. They were verified working
+> on 2026-04-30 via API probe but **schema may change without notice**:
+> - `locations` (`list_locations`, `get_location`)
+> - `payment_methods` (`list_payment_methods`)
+> - `suppliers` (`list_suppliers`, `get_supplier`)
+> - `pos_shifts` (`list_pos_shifts`, `get_pos_shift`)
+> - `stock_transfers` (`list_stock_transfers`, `get_stock_transfer`)
+>
+> All undocumented tool descriptions begin with `[UNDOCUMENTED endpoint, verified 2026-04-30, schema may change]`.
+
+> **Note: 5 internal-only endpoints excluded from pos-counter**
+>
+> `purchase_orders`, `purchase_returns`, `stock_adjustments`, `cash_transactions`, and `cashbook`
+> return HTTP 403 for Private App credentials. These require an OAuth Partner App.
+> Tracked for post-1.0.0 roadmap. See [`out-of-scope.md`](plans/260430-1000-sapo-mcp-implementation/out-of-scope.md).
+
+For full read access (customers, products) combined with POS counter tools, use:
+```
+--mode=pos-online,pos-counter
+```
+
 ### Multi-mode
 
 `--mode=pos-online,web` activates the union of both sets. Tools shared across modes (e.g. variant reads) are registered once.
@@ -104,7 +134,7 @@ Destructive tools (cancel, delete, bulk-delete) are blocked by default. To enabl
 SAPO_ALLOW_OPS=cancel,delete npx sapo-mcp --mode=pos-online
 ```
 
-Supported categories: `cancel`, `delete`, `delete_strict`.
+Supported categories: `cancel`, `delete`, `delete_strict`, `inventory_set`.
 
 All destructive tool calls also require `confirm: true` in the tool arguments — this prevents accidental execution when an LLM calls the tool without explicit intent.
 

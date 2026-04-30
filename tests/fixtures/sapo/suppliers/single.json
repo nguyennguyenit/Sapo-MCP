@@ -1,0 +1,12 @@
+{
+  "supplier": {
+    "id": 30001,
+    "name": "Công ty TNHH ABC",
+    "phone": "***",
+    "email": "***",
+    "address": "789 Bà Triệu, Hà Nội",
+    "note": "Nhà cung cấp chính",
+    "created_on": "2024-01-05T08:00:00Z",
+    "modified_on": "2024-04-20T10:00:00Z"
+  }
+}
