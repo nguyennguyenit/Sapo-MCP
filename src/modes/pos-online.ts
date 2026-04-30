@@ -26,8 +26,8 @@
  * - create_refund [category: refund]
  *
  * Tool counts:
- *   Default (SAPO_ALLOW_OPS=''): 37 tools
- *   Full (SAPO_ALLOW_OPS=*):     46 tools (37 + 9 destructive)
+ *   Default (SAPO_ALLOW_OPS=''): 42 tools
+ *   Full (SAPO_ALLOW_OPS=*):     51 tools (42 + 9 destructive)
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';

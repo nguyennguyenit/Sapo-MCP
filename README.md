@@ -8,7 +8,7 @@ Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerc
 
 ## Features
 
-- **4 modes, 107 tools:** `pos-online` (51), `web` (31), `pos-counter` (15), `analytics` (10)
+- **4 modes, 105 unique tools:** `pos-online` (51), `web` (31), `pos-counter` (15), `analytics` (10) — 2 read tools shared between pos-online and web
 - **Two transports:** stdio (Claude Desktop, Cursor) and Streamable HTTP (Docker, GoClaw)
 - **Safe by default:** destructive ops gated via `SAPO_ALLOW_OPS` (default: none); all destructive calls also require `confirm: true`
 - **Single-tenant:** one shop per server instance via Private App credentials
@@ -143,7 +143,7 @@ Use `--mode=pos-online,web,analytics` to register multiple modes (union of tools
 
 | Mode | Status | Description |
 |------|--------|-------------|
-| `pos-online` | 0.5.0 | Online orders, customers, fulfillment (46 tools) |
+| `pos-online` | 0.5.0 | Online orders, customers, fulfillment (51 tools) |
 | `web` | 0.5.0 | Storefront, collections, articles, SEO (31 tools) |
 | `pos-counter` | 0.5.0 | POS counter: locations, inventory write, suppliers, shifts, stock transfers (15 tools) |
 | `analytics` | 0.5.0 | Composed reports: revenue, top products/customers, LTV, tax, channel breakdown, discount usage, shift report (10 tools) |
@@ -154,7 +154,7 @@ Use `--mode=pos-online,web,analytics` to register multiple modes (union of tools
 
 ## Tool Verification Status
 
-Verification levels for the 107 tools (last updated 2026-04-30):
+Verification levels for the 105 unique tools (last updated 2026-04-30):
 
 | Symbol | Level | What it means |
 |---|---|---|
@@ -195,7 +195,7 @@ These 2 tools may fail at runtime. POS shift management currently requires admin
 Click each section to expand the full tool list with status icons.
 
 <details>
-<summary><b>pos-online — 46 tools</b></summary>
+<summary><b>pos-online — 51 tools (with `SAPO_ALLOW_OPS=*`)</b></summary>
 
 **Customers** (7)
 - ✅ `list_customers`, `get_customer`, `search_customers`, `count_customers`, `list_customer_orders`
