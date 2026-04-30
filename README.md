@@ -247,6 +247,130 @@ Schema from Sapo official `docs/sapo-api-reference.md` sections 4.1–4.26. Tool
 
 These 2 tools may fail at runtime. POS shift management currently requires admin UI.
 
+#### Per-tool status
+
+Click each section to expand the full tool list with status icons.
+
+<details>
+<summary><b>pos-online — 46 tools</b></summary>
+
+**Customers** (7)
+- ✅ `list_customers`, `get_customer`, `search_customers`, `count_customers`, `list_customer_orders`
+- 🟢 `create_customer`, `update_customer`
+
+**Customer Addresses** (4)
+- 🟡 `list_customer_addresses`, `add_customer_address`, `update_customer_address`, `set_default_customer_address`
+
+**Products (read)** (4)
+- ✅ `list_products`, `get_product`, `search_products`, `count_products`
+
+**Variants (read)** (2)
+- 🟡 `list_variants_for_product`, `get_variant`
+
+**Inventory (read)** (1)
+- ✅ `get_inventory_levels`
+
+**Orders** (4)
+- ✅ `list_orders`, `get_order`, `count_orders`, `search_orders`
+
+**Order Transactions** (2)
+- 🟢 `list_order_transactions`, `create_order_transaction`
+
+**Fulfillments** (4)
+- 🟢 `list_fulfillments_for_order`, `get_fulfillment`
+- 🟡 `create_fulfillment`, `update_fulfillment_tracking`
+
+**Refunds** (3)
+- 🟢 `list_refunds`, `get_refund`, `create_refund` *(create_refund destructive: `SAPO_ALLOW_OPS=refund`)*
+
+**Draft Orders** (7)
+- ✅ `list_draft_orders`, `get_draft_order`
+- 🟡 `create_draft_order`, `update_draft_order`, `complete_draft_order`, `send_draft_order_invoice`, `delete_draft_order` *(destructive: `delete`)*
+
+**Price Rules** (5)
+- ✅ `list_price_rules`, `get_price_rule`
+- 🟡 `create_price_rule`, `update_price_rule`, `delete_price_rule` *(destructive: `delete`)*
+
+**Discount Codes** (3)
+- 🟡 `list_discount_codes`, `create_discount_code`, `delete_discount_code` *(destructive: `delete`)*
+
+**Destructive (cancel/delete-strict)** (4)
+- 🟡 `cancel_order`, `close_order`, `cancel_fulfillment` *(destructive: `cancel`)*
+- 🟡 `delete_customer`, `delete_variant` *(destructive: `delete_strict`)*
+
+</details>
+
+<details>
+<summary><b>web — 31 tools</b></summary>
+
+**Store** (1)
+- ✅ `get_store_info`
+
+**Articles** (5)
+- 🟡 `list_articles`, `get_article`, `create_article`, `update_article`, `delete_article` *(destructive: `delete`)*
+
+**Blogs** (5)
+- 🟡 `list_blogs`, `get_blog`, `create_blog`, `update_blog`, `delete_blog` *(destructive: `delete`)*
+
+**Pages** (4)
+- ✅ `list_pages`, `get_page`
+- 🟡 `update_page_seo`, `delete_page` *(destructive: `delete`)*
+
+**Collections** (10)
+- 🟡 `list_custom_collections`, `get_custom_collection`, `create_custom_collection`, `update_custom_collection`, `delete_custom_collection` *(destructive: `delete`)*
+- 🟡 `list_smart_collections`, `get_smart_collection`
+- 🟡 `list_collects`, `create_collect`, `delete_collect` *(destructive: `delete`)*
+
+**Script Tags** (3)
+- 🟡 `list_script_tags`, `create_script_tag`, `delete_script_tag` *(destructive: `delete`)*
+
+**Products SEO** (1)
+- 🟡 `update_product_seo`
+
+**Variants (read, shared)** (2)
+- 🟡 `list_variants_for_product`, `get_variant`
+
+</details>
+
+<details>
+<summary><b>pos-counter — 15 tools</b></summary>
+
+**Locations** (2)
+- ✅ `list_locations`, `get_location`
+
+**Payment Methods** (1)
+- ✅ `list_payment_methods`
+
+**Inventory (write)** (3)
+- 🟡 `adjust_inventory_level`, `connect_inventory_level`
+- 🟡 `set_inventory_level` *(destructive: `inventory_set`)*
+
+**Variants (write)** (1)
+- 🟡 `update_variant`
+
+**POS Orders** (2)
+- ✅ `list_pos_orders`, `get_pos_order` *(uses `/admin/orders?source_name=pos`)*
+
+**Suppliers** (2)
+- ✅ `list_suppliers`, `get_supplier`
+
+**Stock Transfers** (2)
+- ✅ `list_stock_transfers`, `get_stock_transfer`
+
+**POS Shifts** (2)
+- 🚨 `list_pos_shifts`, `get_pos_shift` *(see Broken section above — endpoint returns HTML)*
+
+</details>
+
+<details>
+<summary><b>analytics — 10 tools</b></summary>
+
+All 10 are 🔵 composed (aggregate from multiple Sapo endpoints, no single endpoint to verify):
+
+`revenue_summary`, `top_products`, `top_customers`, `customer_ltv`, `tax_summary`, `online_vs_counter_breakdown`, `discount_usage_report`, `shift_report`, `inventory_low_stock`, `inventory_value`
+
+</details>
+
 For full read access (customers, products) combined with POS counter tools, use:
 ```
 --mode=pos-online,pos-counter
