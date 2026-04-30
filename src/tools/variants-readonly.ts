@@ -26,6 +26,14 @@ function buildEnvelope<T extends { id: number }>(items: T[], limit: number): Lis
 }
 
 export function registerVariantReadTools(server: McpServer, client: SapoClient): void {
+  // Idempotent: variant read tools are shared across modes (pos-online + web).
+  // When `--mode=pos-online,web`, both registrars run; skip if already present.
+  const registered = (server as unknown as { _registeredTools?: Record<string, unknown> })
+    ._registeredTools;
+  if (registered?.list_variants_for_product) {
+    return;
+  }
+
   // ── list_variants_for_product ───────────────────────────────────────────────
   server.registerTool(
     'list_variants_for_product',
