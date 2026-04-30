@@ -4,7 +4,7 @@
 
 **sapo-mcp** is a Model Context Protocol (MCP) server providing AI agents and Claude integrations with safe, authenticated access to Sapo.vn's POS and e-commerce platform via the Private App API.
 
-- **Current version:** 0.6.0 (pre-1.0)
+- **Current version:** 0.7.0 (pre-1.0)
 - **Release date:** 2026-04-30
 - **License:** MIT
 - **Repository:** https://github.com/nguyennguyenit/Sapo-MCP
@@ -26,7 +26,7 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 | **Integration Partner** | Multi-tenant via OAuth for SaaS platform | Deferred to 1.0+ (OAuth) |
 | **Developer** | CLI, HTTP server, reproducible setup | stdio transport, Docker |
 
-## Scope (0.6.0)
+## Scope (0.7.0)
 
 ### In Scope
 - **4 modes:** pos-online (51), web (31), pos-counter (15), analytics (10) — 105 unique tools (2 shared: list_variants_for_product, get_variant)
@@ -71,7 +71,7 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 
 ## Success Criteria
 
-| Criterion | Status (0.6.0) |
+| Criterion | Status (0.7.0) |
 |-----------|-----------------|
 | 4 modes fully implemented | ✅ DONE (Phase 1–9) |
 | 105 unique tools registered & tested | ✅ DONE |
@@ -87,7 +87,7 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 ## Constraints
 
 ### Technical
-- Single-tenant only (Private App, no multi-tenant OAuth in 0.6.0)
+- Single-tenant only (Private App, no multi-tenant OAuth in 0.7.0)
 - 30s timeout on all HTTP calls (Sapo API latency)
 - Max 100 concurrent sessions (memory + file descriptor bound)
 - Retry only on transient (5xx, 429); not on auth/validation (401/404/422)
@@ -106,19 +106,19 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 
 ## Version & Release Model
 
-### Current Version: 0.6.0
+### Current Version: 0.7.0
 - **Release date:** 2026-04-30
 - **Status:** Stable, ready for production single-tenant use
 - **Breaking changes allowed:** Yes (pre-1.0)
 - **npm:** published with provenance signature
 
-### Release Process (0.6.0)
+### Release Process (0.7.0)
 1. Changesets v2 for tracking
 2. Manual version bump + changelog
 3. npm publish with token (NPM_TOKEN granular)
 4. Smoke test (probe read, Inspector UI, Claude Desktop, Docker)
 5. MCP Registry PR (1–4 weeks)
-6. GitHub tag (v0.6.0)
+6. GitHub tag (v0.7.0)
 
 ### Post-0.5.1 Model
 - Auto-versioning via Changesets
@@ -137,7 +137,7 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 | 6 | pos-counter TDD (15 tools) | ✅ | 2026-04-30 |
 | 7 | Streamable HTTP transport | ✅ | 2026-04-30 |
 | 8 | analytics mode (10 tools) | ✅ | 2026-04-30 |
-| 9 | Docs + 0.6.0 release | ✅ | 2026-04-30 |
+| 9 | Docs + 0.7.0 release | ✅ | 2026-04-30 |
 
 ## Post-1.0 Roadmap
 

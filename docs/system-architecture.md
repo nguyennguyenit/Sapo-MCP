@@ -36,7 +36,7 @@ sapo-mcp is an MCP server bridging AI agents and the Sapo.vn API via two transpo
         ┌──────────────▼──────────────┐
         │ McpServer                   │
         │ name: sapo-mcp              │
-        │ version: 0.6.0              │
+        │ version: 0.7.0              │
         │                             │
         │ Tools (105 unique):         │
         │ ├─ pos-online (51)          │
@@ -115,7 +115,7 @@ sapo-mcp --mode=pos-online,web --transport=http --port=3333 --help --version
 export function createServer(opts: ServerCreateOptions): McpServer {
   const server = new McpServer({
     name: 'sapo-mcp',
-    version: '0.6.0'  // SERVER_VERSION
+    version: '0.7.0'  // SERVER_VERSION
   });
   
   const client = new SapoClient({
@@ -592,10 +592,10 @@ docker run -p 3333:3333 \
 - `/admin/pos_shifts.json` — returns text/html (Sapo POS web shell), not JSON
 
 **Discovered issues (2026-04-30):**
-- PageSchema.modified_on must be nullable (fixed in 0.6.0)
+- PageSchema.modified_on must be nullable (fixed in 0.7.0)
 - pos_shifts endpoint non-functional (excluded from matrix)
 
-## Scaling Considerations (Out of Scope for 0.6.0)
+## Scaling Considerations (Out of Scope for 0.7.0)
 
 - **Single instance:** No k8s/clustering guidance
 - **Session limits:** 100 max concurrent (memory + FD bound)

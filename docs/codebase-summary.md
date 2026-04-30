@@ -1,6 +1,6 @@
 # Codebase Summary
 
-## Project Statistics (v0.6.0)
+## Project Statistics (v0.7.0)
 
 | Metric | Value |
 |--------|-------|
@@ -96,7 +96,7 @@ sapo-mcp/
 │   ├── Dockerfile                # Multi-stage, Node 20 Alpine, non-root
 │   └── docker-compose.yml        # Local dev setup
 │
-├── package.json                  # v0.6.0, engines: node >=20
+├── package.json                  # v0.7.0, engines: node >=20
 ├── tsconfig.json                 # ES2022, NodeNext ESM, strict
 ├── biome.json                    # v2.4.13, 2-space, 100 width
 ├── vitest.config.ts              # Coverage + MSW setup
@@ -175,7 +175,7 @@ handleNotFound(id, resource) → 404 with friendly message
 - `inventory_set` — adjust inventory to specific level
 - `shift_close` — close POS shifts
 - `cashbook_write` — cashbook entries (internal-only, future)
-- `refund` — create refunds for orders (new in 0.6.0)
+- `refund` — create refunds for orders (new in 0.7.0)
 
 **Environment variables (23 total):**
 

@@ -4,10 +4,10 @@
 
 | Version | Date | Status | Highlights |
 |---------|------|--------|-----------|
-| **0.6.0** | 2026-04-30 | ✅ Released | 4 modes, 105 tools, 2 transports, canary CI, pre-1.0 |
+| **0.7.0** | 2026-04-30 | ✅ Released | 4 modes, 105 tools, 2 transports, canary CI, pre-1.0 |
 | 0.1.0 | — | — | (Phase 5 milestone) |
 
-## Current Status (0.6.0)
+## Current Status (0.7.0)
 
 - **Release Date:** 2026-04-30
 - **Status:** Stable, production-ready for single-tenant Private App use
@@ -109,7 +109,7 @@
 - All read-only, auto-paginate
 - 10+ test cases
 
-### Phase 9: Documentation & 0.6.0 Release
+### Phase 9: Documentation & 0.7.0 Release
 **Status:** ✅ DONE (2026-04-30)
 - README.md (262 lines, features, quickstart, modes, env, security, Docker, probing)
 - CHANGELOG.md (per-version history)
@@ -231,7 +231,7 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 - ✓ Private App (limited scope) vs Partner App (full scope) detection
 - ✓ Test against Sapo dev store + live merchant
 
-## Known Deferrals & Limitations (0.6.0)
+## Known Deferrals & Limitations (0.7.0)
 
 ### Endpoints
 - **3 undocumented pos-counter endpoints:** locations, suppliers, stock_transfers (marked [UNDOCUMENTED verified 2026-04-30]; schema may change)
@@ -256,14 +256,14 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 
 | Phase | Target | Status |
 |-------|--------|--------|
-| **0.6.0** | 2026-04-30 | ✅ Released |
-| **0.6.0** | 2026-06-30 (est) | Pending (Resources + Prompts) |
-| **0.7.0** | 2026-08-31 (est) | Pending (Webhooks, GraphQL) |
+| **0.7.0** | 2026-04-30 | ✅ Released |
+| **0.8.0** | 2026-06-30 (est) | Pending (Resources + Prompts) |
+| **0.9.0** | 2026-08-31 (est) | Pending (Webhooks, GraphQL) |
 | **1.0.0** | 2026-10-31 (est) | Pending (OAuth, full feature set) |
 
 ## Version Management
 
-### 0.6.0 (Current)
+### 0.7.0 (Current)
 - Pre-1.0 status
 - Minor bumps may break tool names/schemas (warned in README)
 - Manual version bumps via Changesets
@@ -288,7 +288,7 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 
 ## Success Metrics
 
-| Metric | Target (0.6.0) | Actual |
+| Metric | Target (0.7.0) | Actual |
 |--------|-----------------|--------|
 | **Tools implemented** | 100+ | 105 unique ✅ |
 | **Modes** | 4 | 4 ✅ |

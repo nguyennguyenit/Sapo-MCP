@@ -339,7 +339,7 @@ npm run test:coverage     # With coverage report
 ```
 feat(orders): add order cancellation with destructive gating
 fix(client): respect Retry-After header in exponential backoff
-docs: update README for 0.6.0 release
+docs: update README for 0.7.0 release
 refactor(tools): extract common pagination logic
 test(inventory): add edge cases for zero-stock scenarios
 chore: upgrade zod to 3.25.0
@@ -386,10 +386,10 @@ Add HTTP transport for remote MCP clients
 npm run changeset version    # Updates package.json + CHANGELOG
 npm run build                # Compile
 npm publish                  # Publish to npm
-git tag v0.6.0               # Tag release
+git tag v0.7.0               # Tag release
 ```
 
-**Pre-1.0 behavior (0.6.0):**
+**Pre-1.0 behavior (0.7.0):**
 - Manual version bumps (not yet automated)
 - Changesets track intent for future auto-versioning
 

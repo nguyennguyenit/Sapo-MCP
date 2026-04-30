@@ -148,7 +148,7 @@ curl http://localhost:3333/health
 # Response:
 {
   "status": "ok",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "modes": ["pos-online"],
   "sessions": 0
 }
@@ -183,7 +183,7 @@ CMD ["node", "dist/index.mjs", "--mode=pos-online", "--transport=http"]
 ```bash
 # Build
 docker build -f examples/Dockerfile -t sapo-mcp:latest .
-docker tag sapo-mcp:latest sapo-mcp:0.6.0
+docker tag sapo-mcp:latest sapo-mcp:0.7.0
 
 # Run (local, no auth)
 docker run --rm -p 3333:3333 \
@@ -535,7 +535,7 @@ See **RELEASE.md** (authoritative):
 
 3. **Verify published**
    ```bash
-   npm view sapo-mcp@0.6.0
+   npm view sapo-mcp@0.7.0
    npm info sapo-mcp
    ```
 
