@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.1
+
+### Patch Changes
+
+- Release 0.7.1
+
+  - fix(draft-orders): expose `customer_id` on `update_draft_order`
+  - feat(address): VN admin reform support (2-tier provinces, level param) + write-side fixes
+  - ci(release): switch to npm OIDC trusted publishing
+  - chore: pre-commit hook with biome auto-fix
+
 ## 0.7.0
 
 ### Minor Changes
