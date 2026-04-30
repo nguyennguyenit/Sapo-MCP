@@ -14,6 +14,7 @@ export const DESTRUCTIVE_CATEGORIES = [
   'inventory_set',
   'shift_close',
   'cashbook_write',
+  'refund',
 ] as const;
 export type DestructiveCategory = (typeof DESTRUCTIVE_CATEGORIES)[number];
 

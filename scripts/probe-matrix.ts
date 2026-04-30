@@ -190,6 +190,10 @@ const BUCKET_B: ProbeEntry[] = [
     bucket: 'B',
     notes: 'Alias: direct cashbook endpoint (reference shows this name)',
   },
+  // NOTE: /admin/order_returns is intentionally NOT probed — Sapo admin UI does
+  // not use it. The /refunds endpoint (order-scoped, documented section 4.20) is
+  // used instead via tools list_refunds / get_refund / create_refund.
+  // See memory: refunds-vs-order-returns.md
 ];
 
 /**

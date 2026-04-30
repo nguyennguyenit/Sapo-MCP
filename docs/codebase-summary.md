@@ -57,7 +57,7 @@ sapo-mcp/
 │   ├── tools/
 │   │   ├── orders.ts             # order list/get/create/cancel
 │   │   ├── draft-orders.ts       # draft order CRUD
-│   │   ├── order-returns.ts      # return list/get/create
+│   │   ├── refunds.ts            # refund list/get/create (Sapo admin UI uses /refunds, not /order_returns)
 │   │   ├── order-transactions.ts # transaction list
 │   │   ├── orders-counter.ts     # pos counter orders
 │   │   ├── destructive-orders.ts # delete_order (gated)
@@ -136,7 +136,7 @@ sapo-mcp/
 **Purpose:** Define MCP tools; handle Sapo API calls & error translation.
 
 **Organization by domain:**
-- **Orders:** orders.ts, draft-orders.ts, order-returns.ts, order-transactions.ts, orders-counter.ts
+- **Orders:** orders.ts, draft-orders.ts, refunds.ts, order-transactions.ts, orders-counter.ts
 - **Destructive:** destructive-orders.ts, destructive-resources.ts (gated)
 - **Inventory:** inventory-readonly.ts, inventory-write.ts
 - **Products/Variants:** products-readonly.ts, variants-readonly.ts, variants-write.ts, products-seo.ts

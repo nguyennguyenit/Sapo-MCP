@@ -6,7 +6,6 @@
  *   cancel_order         — POST /admin/orders/{id}/cancel.json       [category: cancel]
  *   close_order          — POST /admin/orders/{id}/close.json         [category: cancel]
  *   cancel_fulfillment   — POST /admin/fulfillments/{id}/cancel.json  [category: cancel]
- *   cancel_order_return  — POST /admin/order_returns/{id}/cancel.json [category: cancel]
  *   delete_draft_order   — DELETE /admin/draft_orders/{id}.json       [category: delete]
  */
 
@@ -103,30 +102,6 @@ export function registerDestructiveOrderTools(
           const raw = await client.post(`/fulfillments/${args.fulfillment_id}/cancel.json`, {});
           return okResponse(raw);
         }, 'Fulfillment');
-      },
-    },
-    ctx,
-  );
-
-  // ── cancel_order_return ───────────────────────────────────────────────────────
-  registerIfAllowed(
-    server,
-    {
-      name: 'cancel_order_return',
-      category: 'cancel',
-      description:
-        '[DESTRUCTIVE: cancel] Cancel a pending order return request. Cancels a return that has not been processed. Cannot cancel already-refunded returns. Requires SAPO_ALLOW_OPS=cancel AND confirm:true.',
-      inputSchema: {
-        confirm: z
-          .literal(true)
-          .describe('Must be true. Explicit confirmation required for destructive operations.'),
-        return_id: z.number().int().describe('Order return ID to cancel. Required.'),
-      },
-      handler: async (args) => {
-        return handleNotFound(async () => {
-          const raw = await client.post(`/order_returns/${args.return_id}/cancel.json`, {});
-          return okResponse(raw);
-        }, 'OrderReturn');
       },
     },
     ctx,

@@ -12,7 +12,7 @@ Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerc
 
 ## Features
 
-- **4 modes, 104 tools:** `pos-online` (48), `web` (31), `pos-counter` (15), `analytics` (10)
+- **4 modes, 107 tools:** `pos-online` (51), `web` (31), `pos-counter` (15), `analytics` (10)
 - **Two transports:** stdio (Claude Desktop, Cursor) and Streamable HTTP (Docker, GoClaw)
 - **Safe by default:** destructive ops gated via `SAPO_ALLOW_OPS` (default: none); all destructive calls also require `confirm: true`
 - **Single-tenant:** one shop per server instance via Private App credentials
@@ -147,18 +147,18 @@ Use `--mode=pos-online,web,analytics` to register multiple modes (union of tools
 
 | Mode | Status | Description |
 |------|--------|-------------|
-| `pos-online` | 0.5.0 | Online orders, customers, fulfillment (48 tools) |
+| `pos-online` | 0.5.0 | Online orders, customers, fulfillment (46 tools) |
 | `web` | 0.5.0 | Storefront, collections, articles, SEO (31 tools) |
 | `pos-counter` | 0.5.0 | POS counter: locations, inventory write, suppliers, shifts, stock transfers (15 tools) |
 | `analytics` | 0.5.0 | Composed reports: revenue, top products/customers, LTV, tax, channel breakdown, discount usage, shift report (10 tools) |
 
 ## Available Tools
 
-### `pos-online` — 48 tools
+### `pos-online` — 46 tools
 
-Covers online order management, draft orders, fulfillments, returns, customers, addresses, price rules, discount codes, products (read), variants (read), inventory (read), and transactions.
+Covers online order management, draft orders, fulfillments, refunds, customers, addresses, price rules, discount codes, products (read), variants (read), inventory (read), and transactions.
 
-9 tools are destructive and gated via `SAPO_ALLOW_OPS`.
+9 tools are destructive and gated via `SAPO_ALLOW_OPS` (categories: `cancel`, `delete`, `delete_strict`, `refund`).
 
 ### `web` — 31 tools
 
@@ -220,7 +220,7 @@ Destructive tools (cancel, delete, bulk-delete) are blocked by default. To enabl
 SAPO_ALLOW_OPS=cancel,delete npx sapo-mcp --mode=pos-online
 ```
 
-Supported categories: `cancel`, `delete`, `delete_strict`, `inventory_set`.
+Supported categories: `cancel`, `delete`, `delete_strict`, `inventory_set`, `refund`, `shift_close`, `cashbook_write`.
 
 All destructive tool calls also require `confirm: true` in the tool arguments — this prevents accidental execution when an LLM calls the tool without explicit intent.
 

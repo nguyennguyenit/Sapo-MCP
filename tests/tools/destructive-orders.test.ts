@@ -1,6 +1,6 @@
 /**
  * Tests for registerDestructiveOrderTools
- * Tools: cancel_order, close_order, cancel_fulfillment, cancel_order_return, delete_draft_order
+ * Tools: cancel_order, close_order, cancel_fulfillment, delete_draft_order
  *
  * Critical: Each test verifies guard behavior:
  *   - empty SAPO_ALLOW_OPS → tool NOT registered
@@ -59,7 +59,7 @@ describe('registerDestructiveOrderTools — guard behavior', () => {
     expect(getToolNames(server)).toHaveLength(0);
   });
 
-  it('registers cancel tools (cancel_order, close_order, cancel_fulfillment, cancel_order_return) with cancel category', () => {
+  it('registers cancel tools (cancel_order, close_order, cancel_fulfillment) with cancel category', () => {
     const server = makeServer();
     const client = makeClient();
     registerDestructiveOrderTools(server, client, cancelCtx);
@@ -67,7 +67,6 @@ describe('registerDestructiveOrderTools — guard behavior', () => {
     expect(names).toContain('cancel_order');
     expect(names).toContain('close_order');
     expect(names).toContain('cancel_fulfillment');
-    expect(names).toContain('cancel_order_return');
     expect(names).not.toContain('delete_draft_order');
   });
 
@@ -80,11 +79,11 @@ describe('registerDestructiveOrderTools — guard behavior', () => {
     expect(names).not.toContain('cancel_order');
   });
 
-  it('registers all 5 tools with wildcard allowOps', () => {
+  it('registers all 4 tools with wildcard allowOps', () => {
     const server = makeServer();
     const client = makeClient();
     registerDestructiveOrderTools(server, client, wildcardCtx);
-    expect(getToolNames(server)).toHaveLength(5);
+    expect(getToolNames(server)).toHaveLength(4);
   });
 });
 
@@ -181,35 +180,6 @@ describe('cancel_fulfillment', () => {
     const result = await callTool(server, 'cancel_fulfillment', {
       confirm: true,
       fulfillment_id: 999,
-    });
-    expect(result).toHaveProperty('isError', true);
-  });
-});
-
-describe('cancel_order_return', () => {
-  let server: McpServer;
-  let client: SapoClient;
-
-  beforeEach(() => {
-    server = makeServer();
-    client = makeClient();
-    registerDestructiveOrderTools(server, client, cancelCtx);
-  });
-
-  it('POSTs to /order_returns/{id}/cancel.json', async () => {
-    vi.spyOn(client, 'post').mockResolvedValueOnce({ order_return: { id: 20 } });
-
-    await callTool(server, 'cancel_order_return', { confirm: true, return_id: 20 });
-
-    expect(client.post).toHaveBeenCalledWith('/order_returns/20/cancel.json', {});
-  });
-
-  it('returns isError on not found', async () => {
-    vi.spyOn(client, 'post').mockRejectedValueOnce(new SapoNotFoundError('not found', 404));
-
-    const result = await callTool(server, 'cancel_order_return', {
-      confirm: true,
-      return_id: 999,
     });
     expect(result).toHaveProperty('isError', true);
   });
