@@ -183,6 +183,22 @@ describe('registerDraftOrderTools', () => {
       expect(text.id).toBe(6586400);
     });
 
+    it('maps customer_id to draft_order.customer.id', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleFixture);
+
+      await callTool(server, 'update_draft_order', {
+        draft_order_id: 6586400,
+        customer_id: 12345,
+      });
+
+      expect(client.put).toHaveBeenCalledWith(
+        '/draft_orders/6586400.json',
+        expect.objectContaining({
+          draft_order: expect.objectContaining({ customer: { id: 12345 } }),
+        }),
+      );
+    });
+
     it('returns isError on not found', async () => {
       vi.spyOn(client, 'put').mockRejectedValueOnce(new SapoNotFoundError('not found', 404));
 

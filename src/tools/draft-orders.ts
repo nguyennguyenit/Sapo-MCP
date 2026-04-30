@@ -159,6 +159,13 @@ export function registerDraftOrderTools(server: McpServer, client: SapoClient): 
           .array(z.record(z.unknown()))
           .optional()
           .describe('Replace line_items (replaces all existing items).'),
+        customer_id: z
+          .number()
+          .int()
+          .optional()
+          .describe(
+            'Associate the draft with an existing customer. Sapo does not support clearing the customer via this field — omit to leave unchanged.',
+          ),
         note: z.string().optional().describe('Updated order note.'),
         tags: z.string().optional().describe('Updated comma-separated tags.'),
         email: z.string().optional().describe('Updated customer email.'),
@@ -172,9 +179,10 @@ export function registerDraftOrderTools(server: McpServer, client: SapoClient): 
     },
     async (args) => {
       return handleNotFound(async () => {
-        const { draft_order_id, ...rest } = args;
+        const { draft_order_id, customer_id, ...rest } = args;
         const draft_order: Record<string, unknown> = {};
         if (rest.line_items !== undefined) draft_order.line_items = rest.line_items;
+        if (customer_id !== undefined) draft_order.customer = { id: customer_id };
         if (rest.note !== undefined) draft_order.note = rest.note;
         if (rest.tags !== undefined) draft_order.tags = rest.tags;
         if (rest.email !== undefined) draft_order.email = rest.email;
