@@ -13,3 +13,6 @@ coverage/
 
 # Internal planning docs (not for public repo)
 plans/
+
+# Canary auto-generated report
+canary-report.json
