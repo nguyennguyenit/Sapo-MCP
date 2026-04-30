@@ -214,10 +214,7 @@ export function registerOrderTools(server: McpServer, client: SapoClient): void 
         'refunds, and inventory state.',
       inputSchema: {
         order_id: z.number().int().describe('Order ID to update. Required.'),
-        tags: z
-          .string()
-          .optional()
-          .describe('Comma-separated tags. Empty string clears all tags.'),
+        tags: z.string().optional().describe('Comma-separated tags. Empty string clears all tags.'),
         note: z.string().nullable().optional().describe('Order note. Pass null to clear.'),
         email: z
           .string()

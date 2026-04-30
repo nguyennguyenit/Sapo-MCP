@@ -9,7 +9,9 @@ import type { SapoClient } from '../../src/client/http.js';
 import { _resetProvinceCache } from '../../src/tools/address-resolver.js';
 import { registerCustomerTools } from '../../src/tools/customers.js';
 import listFixture from '../fixtures/sapo/customers/list-response.json' with { type: 'json' };
-import listNullProvinceFixture from '../fixtures/sapo/customers/list-with-null-province.json' with { type: 'json' };
+import listNullProvinceFixture from '../fixtures/sapo/customers/list-with-null-province.json' with {
+  type: 'json',
+};
 import singleFixture from '../fixtures/sapo/customers/single.json' with { type: 'json' };
 
 function makeServer(): McpServer {

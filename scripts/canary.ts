@@ -32,10 +32,7 @@ import { StockTransferListResponseSchema } from '../src/schemas/stock-transfer.j
 import { SupplierListResponseSchema } from '../src/schemas/supplier.js';
 import { buildBasicAuthHeader, log, maskCredentials } from './probe-shared.js';
 
-async function fetchJson(
-  url: string,
-  auth: string,
-): Promise<{ status: number; body: unknown }> {
+async function fetchJson(url: string, auth: string): Promise<{ status: number; body: unknown }> {
   const res = await fetch(url, {
     method: 'GET',
     headers: { Authorization: auth, 'Content-Type': 'application/json' },
@@ -61,9 +58,7 @@ interface CanaryEntry {
 const ProvinceListCanarySchema = z
   .object({
     provinces: z.array(
-      z
-        .object({ id: z.number().int(), name: z.string(), code: z.string() })
-        .passthrough(),
+      z.object({ id: z.number().int(), name: z.string(), code: z.string() }).passthrough(),
     ),
   })
   .passthrough();
@@ -83,30 +78,76 @@ const WardListCanarySchema = z
   .passthrough();
 
 // Single-resource (no list wrapper) handled separately.
-const StoreSingleSchema = z.object({ store: z.object({ id: z.number() }).passthrough() }).passthrough();
+const StoreSingleSchema = z
+  .object({ store: z.object({ id: z.number() }).passthrough() })
+  .passthrough();
 
 const CANARY_MATRIX: CanaryEntry[] = [
-  { resource: 'products', endpoint: '/admin/products.json?limit=1', schema: ProductListResponseSchema },
+  {
+    resource: 'products',
+    endpoint: '/admin/products.json?limit=1',
+    schema: ProductListResponseSchema,
+  },
   { resource: 'orders', endpoint: '/admin/orders.json?limit=1', schema: OrderListResponseSchema },
-  { resource: 'customers', endpoint: '/admin/customers.json?limit=1', schema: CustomerListResponseSchema },
-  { resource: 'inventory_levels', endpoint: '/admin/inventory_levels.json?limit=1', schema: InventoryLevelListResponseSchema },
+  {
+    resource: 'customers',
+    endpoint: '/admin/customers.json?limit=1',
+    schema: CustomerListResponseSchema,
+  },
+  {
+    resource: 'inventory_levels',
+    endpoint: '/admin/inventory_levels.json?limit=1',
+    schema: InventoryLevelListResponseSchema,
+  },
   { resource: 'locations', endpoint: '/admin/locations.json', schema: LocationListResponseSchema },
-  { resource: 'draft_orders', endpoint: '/admin/draft_orders.json?limit=1', schema: DraftOrderListResponseSchema },
-  { resource: 'price_rules', endpoint: '/admin/price_rules.json?limit=1', schema: PriceRuleListResponseSchema },
+  {
+    resource: 'draft_orders',
+    endpoint: '/admin/draft_orders.json?limit=1',
+    schema: DraftOrderListResponseSchema,
+  },
+  {
+    resource: 'price_rules',
+    endpoint: '/admin/price_rules.json?limit=1',
+    schema: PriceRuleListResponseSchema,
+  },
   { resource: 'pages', endpoint: '/admin/pages.json?limit=1', schema: PageListResponseSchema },
-  { resource: 'suppliers', endpoint: '/admin/suppliers.json?limit=1', schema: SupplierListResponseSchema },
+  {
+    resource: 'suppliers',
+    endpoint: '/admin/suppliers.json?limit=1',
+    schema: SupplierListResponseSchema,
+  },
   // KNOWN ISSUE 2026-04-30: /admin/pos_shifts.json returns text/html (Sapo POS web app shell),
   // not JSON. Tools list_pos_shifts / get_pos_shift may be non-functional.
   // Removed from canary until either the JSON API is found or tools are deprecated.
   // See memory: sapo-api-quirks.md
   // { resource: 'pos_shifts', endpoint: '/admin/pos_shifts.json?limit=1', schema: PosShiftListResponseSchema },
-  { resource: 'stock_transfers', endpoint: '/admin/stock_transfers.json?limit=1', schema: StockTransferListResponseSchema },
-  { resource: 'payment_methods', endpoint: '/admin/payment_methods.json', schema: PaymentMethodListResponseSchema },
+  {
+    resource: 'stock_transfers',
+    endpoint: '/admin/stock_transfers.json?limit=1',
+    schema: StockTransferListResponseSchema,
+  },
+  {
+    resource: 'payment_methods',
+    endpoint: '/admin/payment_methods.json',
+    schema: PaymentMethodListResponseSchema,
+  },
   // Vietnamese administrative units — drift detection for both 3-tier (default) and 2-tier (level=2) schemas.
-  { resource: 'provinces_level3', endpoint: '/admin/provinces.json', schema: ProvinceListCanarySchema },
-  { resource: 'provinces_level2', endpoint: '/admin/provinces.json?level=2', schema: ProvinceListCanarySchema },
+  {
+    resource: 'provinces_level3',
+    endpoint: '/admin/provinces.json',
+    schema: ProvinceListCanarySchema,
+  },
+  {
+    resource: 'provinces_level2',
+    endpoint: '/admin/provinces.json?level=2',
+    schema: ProvinceListCanarySchema,
+  },
   // wards level=2 needs a province_code; HN code 2001 is stable post-reform anchor.
-  { resource: 'wards_level2_hanoi', endpoint: '/admin/wards.json?level=2&province_code=2001', schema: WardListCanarySchema },
+  {
+    resource: 'wards_level2_hanoi',
+    endpoint: '/admin/wards.json?level=2&province_code=2001',
+    schema: WardListCanarySchema,
+  },
 ];
 
 /**
@@ -258,11 +299,7 @@ async function main(): Promise<never> {
   const reportPath = resolve(process.cwd(), 'canary-report.json');
   writeFileSync(
     reportPath,
-    JSON.stringify(
-      { store, runAt: new Date().toISOString(), results, writeLockReport },
-      null,
-      2,
-    ),
+    JSON.stringify({ store, runAt: new Date().toISOString(), results, writeLockReport }, null, 2),
   );
   log('info', `Report: ${reportPath}`);
 

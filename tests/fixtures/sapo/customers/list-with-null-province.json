@@ -13,7 +13,7 @@
       "dob": null,
       "accepts_marketing": false,
       "orders_count": 0,
-      "total_spent": 0.0000,
+      "total_spent": 0.0,
       "last_order_id": null,
       "last_order_name": null,
       "tags": "",

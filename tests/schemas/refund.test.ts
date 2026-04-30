@@ -7,8 +7,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   RefundListResponseSchema,
-  RefundSingleResponseSchema,
   RefundSchema,
+  RefundSingleResponseSchema,
 } from '../../src/schemas/refund.js';
 
 const fixtureDir = join(__dirname, '../fixtures/sapo/refunds');

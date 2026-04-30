@@ -138,9 +138,7 @@ describe('registerCustomerAddressTools', () => {
 
     it('auto-resolves "Hồ Chí Minh" to canonical "TP Hồ Chí Minh" + code "2"', async () => {
       vi.spyOn(client, 'get').mockResolvedValueOnce({
-        provinces: [
-          { id: 2, name: 'TP Hồ Chí Minh', code: '2', country_id: 201 },
-        ],
+        provinces: [{ id: 2, name: 'TP Hồ Chí Minh', code: '2', country_id: 201 }],
       });
       vi.spyOn(client, 'post').mockResolvedValueOnce(singleAddrFixture);
 

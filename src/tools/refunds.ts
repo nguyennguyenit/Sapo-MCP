@@ -98,7 +98,9 @@ export function registerRefundTools(
             }),
           )
           .optional()
-          .describe('Line items to record in refund. Provide at least one of refund_line_items / order_adjustments / transactions.'),
+          .describe(
+            'Line items to record in refund. Provide at least one of refund_line_items / order_adjustments / transactions.',
+          ),
         transactions: z
           .array(
             z.object({
@@ -111,7 +113,9 @@ export function registerRefundTools(
             }),
           )
           .optional()
-          .describe('Refund transactions. Omit or pass [] to create a "ghost" refund without moving money.'),
+          .describe(
+            'Refund transactions. Omit or pass [] to create a "ghost" refund without moving money.',
+          ),
         note: z.string().optional().describe('Internal note for the refund.'),
         notify: z.boolean().optional().describe('Whether to notify customer via email.'),
         restock: z
@@ -122,7 +126,8 @@ export function registerRefundTools(
       handler: async (args) => {
         return handleNotFound(async () => {
           const refund: Record<string, unknown> = {};
-          if (args.refund_line_items !== undefined) refund.refund_line_items = args.refund_line_items;
+          if (args.refund_line_items !== undefined)
+            refund.refund_line_items = args.refund_line_items;
           if (args.transactions !== undefined) refund.transactions = args.transactions;
           if (args.note !== undefined) refund.note = args.note;
           if (args.notify !== undefined) refund.notify = args.notify;

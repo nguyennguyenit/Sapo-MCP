@@ -64,7 +64,5 @@ export type Refund = z.infer<typeof RefundSchema>;
 export const RefundSingleResponseSchema = z.object({ refund: RefundSchema }).passthrough();
 export type RefundSingleResponse = z.infer<typeof RefundSingleResponseSchema>;
 
-export const RefundListResponseSchema = z
-  .object({ refunds: z.array(RefundSchema) })
-  .passthrough();
+export const RefundListResponseSchema = z.object({ refunds: z.array(RefundSchema) }).passthrough();
 export type RefundListResponse = z.infer<typeof RefundListResponseSchema>;

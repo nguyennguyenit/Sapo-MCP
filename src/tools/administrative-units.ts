@@ -122,7 +122,9 @@ export function registerAdministrativeUnitTools(server: McpServer, client: SapoC
         district_code: z
           .string()
           .optional()
-          .describe('District code from list_districts. Required for level=3 (3-tier schema, default).'),
+          .describe(
+            'District code from list_districts. Required for level=3 (3-tier schema, default).',
+          ),
         level: levelField,
       },
     },

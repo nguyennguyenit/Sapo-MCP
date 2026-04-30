@@ -139,10 +139,9 @@ export function registerCustomerAddressTools(server: McpServer, client: SapoClie
           body.province = resolved.province;
           body.province_code = resolved.province_code;
         }
-        const raw = await client.put(
-          `/customers/${customer_id}/addresses/${address_id}.json`,
-          { address: body },
-        );
+        const raw = await client.put(`/customers/${customer_id}/addresses/${address_id}.json`, {
+          address: body,
+        });
         const parsed = AddressSingleResponseSchema.safeParse(raw);
         if (!parsed.success) return errResponse('Invalid response from Sapo API: update address');
         return okResponse(parsed.data.address);

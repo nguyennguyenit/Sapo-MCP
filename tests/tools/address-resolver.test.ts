@@ -3,10 +3,7 @@
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SapoClient } from '../../src/client/http.js';
-import {
-  _resetProvinceCache,
-  resolveProvince,
-} from '../../src/tools/address-resolver.js';
+import { _resetProvinceCache, resolveProvince } from '../../src/tools/address-resolver.js';
 
 const PROVINCES_FIXTURE = {
   provinces: [

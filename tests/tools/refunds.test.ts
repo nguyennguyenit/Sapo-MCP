@@ -158,9 +158,7 @@ describe('registerRefundTools', () => {
       await callTool(server, 'create_refund', {
         confirm: true,
         order_id: 1,
-        transactions: [
-          { parent_id: 100, amount: 50, kind: 'refund', gateway: 'manual' },
-        ],
+        transactions: [{ parent_id: 100, amount: 50, kind: 'refund', gateway: 'manual' }],
         note: 'partial refund',
         notify: false,
       });

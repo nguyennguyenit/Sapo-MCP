@@ -1,1 +1,54 @@
-{"refund":{"id":25412855,"order_id":174107276,"return_id":null,"created_on":"2026-04-30T08:00:09Z","processed_at":"2026-04-30T08:00:09Z","restock":false,"user_id":720560,"note":"","transactions":[{"id":148464553,"parent_id":148462370,"order_id":174107276,"checkout_token":null,"refund_id":25412855,"location_id":825802,"source_name":"facebook","client_id":null,"user_id":720560,"device_id":null,"gateway":"Tiền mặt","amount":150000.0000,"currency":"VND","kind":"refund","status":"success","authorization":null,"error_code":null,"message":null,"cause_type":null,"payment_info":null,"payment_details":{},"receipt":{},"created_on":"2026-04-30T08:00:09Z","processed_at":"2026-04-30T08:00:09Z","test":false}],"refund_line_items":[],"order_adjustments":[{"id":4285078,"order_id":174107276,"refund_id":25412855,"kind":"refund_discrepancy","reason":"Refund discrepancy","amount":-150000.0000,"tax_amount":0.0000}],"total_refunded":150000.0000}}
+{
+  "refund": {
+    "id": 25412855,
+    "order_id": 174107276,
+    "return_id": null,
+    "created_on": "2026-04-30T08:00:09Z",
+    "processed_at": "2026-04-30T08:00:09Z",
+    "restock": false,
+    "user_id": 720560,
+    "note": "",
+    "transactions": [
+      {
+        "id": 148464553,
+        "parent_id": 148462370,
+        "order_id": 174107276,
+        "checkout_token": null,
+        "refund_id": 25412855,
+        "location_id": 825802,
+        "source_name": "facebook",
+        "client_id": null,
+        "user_id": 720560,
+        "device_id": null,
+        "gateway": "Tiền mặt",
+        "amount": 150000.0,
+        "currency": "VND",
+        "kind": "refund",
+        "status": "success",
+        "authorization": null,
+        "error_code": null,
+        "message": null,
+        "cause_type": null,
+        "payment_info": null,
+        "payment_details": {},
+        "receipt": {},
+        "created_on": "2026-04-30T08:00:09Z",
+        "processed_at": "2026-04-30T08:00:09Z",
+        "test": false
+      }
+    ],
+    "refund_line_items": [],
+    "order_adjustments": [
+      {
+        "id": 4285078,
+        "order_id": 174107276,
+        "refund_id": 25412855,
+        "kind": "refund_discrepancy",
+        "reason": "Refund discrepancy",
+        "amount": -150000.0,
+        "tax_amount": 0.0
+      }
+    ],
+    "total_refunded": 150000.0
+  }
+}
