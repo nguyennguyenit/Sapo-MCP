@@ -15,18 +15,18 @@ export const AddressSchema = z
     customer_id: z.number().int().optional(),
     first_name: z.string().optional().nullable(),
     last_name: z.string().optional().nullable(),
-    address1: z.string(),
+    address1: z.string().optional().nullable(),
     address2: z.string().optional().nullable(),
-    city: z.string(),
-    /** Full Vietnamese province name e.g. "Hà Nội", "Hồ Chí Minh" */
-    province: z.string(),
+    city: z.string().optional().nullable(),
+    /** Full Vietnamese province name e.g. "Hà Nội", "Hồ Chí Minh". Sapo returns null when subdivision codes were not provided on create. */
+    province: z.string().optional().nullable(),
     /** Short province code e.g. "HN", "HCM" */
     province_code: z.string().optional().nullable(),
     /** Vietnamese district name e.g. "Hoàn Kiếm", "Quận 1" */
     district: z.string().optional().nullable(),
     /** Vietnamese ward name e.g. "Lý Thái Tổ", "Bến Nghé" */
     ward: z.string().optional().nullable(),
-    country: z.string(),
+    country: z.string().optional().nullable(),
     /** ISO 3166-1 alpha-3 code e.g. "VNM" */
     country_code: z.string().optional().nullable(),
     zip: z.string().optional().nullable(),

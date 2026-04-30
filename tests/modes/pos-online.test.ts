@@ -61,28 +61,28 @@ describe('registerPosOnlineTools (Phase 3a + 3b + 3c)', () => {
     expect(() => registerPosOnlineTools(server, client, fakeConfig)).not.toThrow();
   });
 
-  it('registers exactly 42 tools with default (empty) allowOps', () => {
+  it('registers exactly 46 tools with default (empty) allowOps', () => {
     const server = makeServer();
     const client = makeClient();
     registerPosOnlineTools(server, client, fakeConfig);
 
     const names = getRegisteredToolNames(server);
-    // Phase 3a (18): 5 customer read + 2 customer write + 1 address read + 3 address write
-    //              + 4 product + 2 variant + 1 inventory
-    // Phase 3b (12): 4 orders + 2 transactions + 4 fulfillments + 2 refunds (list, get)
+    // Phase 3a (21): 5 customer read + 2 customer write + 1 address read + 3 address write
+    //              + 3 administrative-units + 4 product + 2 variant + 1 inventory
+    // Phase 3b (13): 5 orders (incl update_order) + 2 transactions + 4 fulfillments + 2 refunds
     // Phase 3c read+write (12): 6 draft-orders + 4 price-rules + 2 discount-codes
     // Destructive (0): gated, not registered
-    expect(names).toHaveLength(42);
+    expect(names).toHaveLength(46);
   });
 
-  it('registers exactly 51 tools with SAPO_ALLOW_OPS=*', () => {
+  it('registers exactly 55 tools with SAPO_ALLOW_OPS=*', () => {
     const server = makeServer();
     const client = makeClient();
     registerPosOnlineTools(server, client, fullConfig);
 
     const names = getRegisteredToolNames(server);
-    // 42 read+write + 9 destructive (3 cancel + 3 delete + 2 delete_strict + 1 refund)
-    expect(names).toHaveLength(51);
+    // 46 read+write + 9 destructive (3 cancel + 3 delete + 2 delete_strict + 1 refund)
+    expect(names).toHaveLength(55);
   });
 
   // ── Phase 3a tools ────────────────────────────────────────────────────────────
@@ -282,8 +282,8 @@ describe('registerPosOnlineTools (Phase 3a + 3b + 3c)', () => {
     expect(names).not.toContain('delete_draft_order');
     expect(names).not.toContain('delete_customer');
     expect(names).not.toContain('create_refund');
-    // Total: 42 + 3 = 45
-    expect(names).toHaveLength(45);
+    // Total: 46 + 3 = 49
+    expect(names).toHaveLength(49);
   });
 
   it('registers only delete tools with allowOps=delete', () => {
@@ -298,8 +298,8 @@ describe('registerPosOnlineTools (Phase 3a + 3b + 3c)', () => {
     expect(names).toContain('delete_discount_code');
     expect(names).not.toContain('cancel_order');
     expect(names).not.toContain('delete_customer');
-    // Total: 42 + 3 = 45
-    expect(names).toHaveLength(45);
+    // Total: 46 + 3 = 49
+    expect(names).toHaveLength(49);
   });
 
   it('registers only delete_strict tools with allowOps=delete_strict', () => {
@@ -313,8 +313,8 @@ describe('registerPosOnlineTools (Phase 3a + 3b + 3c)', () => {
     expect(names).toContain('delete_variant');
     expect(names).not.toContain('cancel_order');
     expect(names).not.toContain('delete_draft_order');
-    // Total: 42 + 2 = 44
-    expect(names).toHaveLength(44);
+    // Total: 46 + 2 = 48
+    expect(names).toHaveLength(48);
   });
 
   it('registers only create_refund with allowOps=refund', () => {
@@ -327,7 +327,7 @@ describe('registerPosOnlineTools (Phase 3a + 3b + 3c)', () => {
     expect(names).toContain('create_refund');
     expect(names).not.toContain('cancel_order');
     expect(names).not.toContain('delete_draft_order');
-    // Total: 42 + 1 = 43
-    expect(names).toHaveLength(43);
+    // Total: 46 + 1 = 47
+    expect(names).toHaveLength(47);
   });
 });

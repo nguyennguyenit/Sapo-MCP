@@ -5,6 +5,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SapoNotFoundError } from '../../src/client/errors.js';
 import type { SapoClient } from '../../src/client/http.js';
+import { _resetProvinceCache } from '../../src/tools/address-resolver.js';
 import { registerCustomerAddressTools } from '../../src/tools/customer-addresses.js';
 import addressesFixture from '../fixtures/sapo/customers/addresses-list.json' with { type: 'json' };
 
@@ -39,6 +40,7 @@ describe('registerCustomerAddressTools', () => {
   let client: SapoClient;
 
   beforeEach(() => {
+    _resetProvinceCache();
     server = makeServer();
     client = makeClient();
     registerCustomerAddressTools(server, client);
@@ -93,7 +95,6 @@ describe('registerCustomerAddressTools', () => {
         address1: '789 Trần Hưng Đạo',
         city: 'Hà Nội',
         country: 'Vietnam',
-        province_code: 'HN',
       });
 
       expect(client.post).toHaveBeenCalledWith(
@@ -103,7 +104,6 @@ describe('registerCustomerAddressTools', () => {
             address1: '789 Trần Hưng Đạo',
             city: 'Hà Nội',
             country: 'Vietnam',
-            province_code: 'HN',
           }),
         }),
       );
@@ -119,6 +119,48 @@ describe('registerCustomerAddressTools', () => {
         country: 'z',
       });
       expect((result as { isError: boolean }).isError).toBe(true);
+    });
+
+    it('rejects level=2 codes pre-flight (does not call Sapo)', async () => {
+      const postSpy = vi.spyOn(client, 'post');
+      const result = await callTool(server, 'add_customer_address', {
+        customer_id: 1001,
+        address1: '22 đường số 1',
+        city: 'Hà Nội',
+        country: 'Vietnam',
+        province_code: '2001',
+        ward_code: '200001',
+        district_code: '-1',
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+      expect(postSpy).not.toHaveBeenCalled();
+    });
+
+    it('auto-resolves "Hồ Chí Minh" to canonical "TP Hồ Chí Minh" + code "2"', async () => {
+      vi.spyOn(client, 'get').mockResolvedValueOnce({
+        provinces: [
+          { id: 2, name: 'TP Hồ Chí Minh', code: '2', country_id: 201 },
+        ],
+      });
+      vi.spyOn(client, 'post').mockResolvedValueOnce(singleAddrFixture);
+
+      await callTool(server, 'add_customer_address', {
+        customer_id: 1001,
+        address1: '123 Lê Lợi',
+        city: 'Hồ Chí Minh',
+        country: 'Vietnam',
+        province: 'Hồ Chí Minh',
+      });
+
+      expect(client.post).toHaveBeenCalledWith(
+        '/customers/1001/addresses.json',
+        expect.objectContaining({
+          address: expect.objectContaining({
+            province: 'TP Hồ Chí Minh',
+            province_code: '2',
+          }),
+        }),
+      );
     });
   });
 
@@ -136,6 +178,17 @@ describe('registerCustomerAddressTools', () => {
         '/customers/1001/addresses/2001.json',
         expect.objectContaining({ address: { phone: '+84988888888' } }),
       );
+    });
+
+    it('rejects level=2 codes pre-flight', async () => {
+      const putSpy = vi.spyOn(client, 'put');
+      const result = await callTool(server, 'update_customer_address', {
+        customer_id: 1001,
+        address_id: 2001,
+        ward_code: '200005',
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+      expect(putSpy).not.toHaveBeenCalled();
     });
   });
 

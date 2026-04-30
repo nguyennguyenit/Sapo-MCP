@@ -219,4 +219,46 @@ describe('registerOrderTools', () => {
       expect(text).toHaveProperty('next_since_id');
     });
   });
+
+  describe('update_order', () => {
+    it('PUTs /orders/{id}.json with provided fields only', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleFixture);
+
+      await callTool(server, 'update_order', {
+        order_id: 1001,
+        tags: 'vip,paid',
+        note: 'updated via MCP',
+      });
+
+      expect(client.put).toHaveBeenCalledWith(
+        '/orders/1001.json',
+        expect.objectContaining({
+          order: expect.objectContaining({ tags: 'vip,paid', note: 'updated via MCP' }),
+        }),
+      );
+    });
+
+    it('passes note_attributes array verbatim', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleFixture);
+      await callTool(server, 'update_order', {
+        order_id: 1001,
+        note_attributes: [{ name: 'src', value: 'mcp' }],
+      });
+      expect(client.put).toHaveBeenCalledWith(
+        '/orders/1001.json',
+        expect.objectContaining({
+          order: { note_attributes: [{ name: 'src', value: 'mcp' }] },
+        }),
+      );
+    });
+
+    it('returns isError when order not found', async () => {
+      vi.spyOn(client, 'put').mockRejectedValueOnce(new SapoNotFoundError('Order'));
+      const result = await callTool(server, 'update_order', {
+        order_id: 999999,
+        tags: 'x',
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+    });
+  });
 });

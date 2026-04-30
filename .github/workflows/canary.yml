@@ -45,6 +45,11 @@ jobs:
           SAPO_STORE: ${{ secrets.SAPO_CANARY_STORE }}
           SAPO_API_KEY: ${{ secrets.SAPO_CANARY_API_KEY }}
           SAPO_API_SECRET: ${{ secrets.SAPO_CANARY_API_SECRET }}
+          # Optional level=2 write-lock probe. Set both secrets in repo settings to enable.
+          # Verifies Sapo write API still rejects post-2025 2-tier addresses (expects HTTP 422).
+          # When this flips to 2xx, src/tools/address-write-validation.ts can be removed.
+          CANARY_PROBE_WRITE: ${{ secrets.CANARY_PROBE_WRITE }}
+          CANARY_CUSTOMER_ID: ${{ secrets.CANARY_CUSTOMER_ID }}
         run: |
           # canary.ts exits 0 = ok, 2 = auth_fail, 3 = drift, 1 = fatal
           npm run canary 2>&1 | tee canary-output.txt

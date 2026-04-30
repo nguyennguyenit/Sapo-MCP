@@ -56,6 +56,32 @@ interface CanaryEntry {
   schema: z.ZodType<unknown>;
 }
 
+// Inline schemas for administrative-units canary entries — kept here to avoid
+// re-exposing them publicly; mirror src/tools/administrative-units.ts.
+const ProvinceListCanarySchema = z
+  .object({
+    provinces: z.array(
+      z
+        .object({ id: z.number().int(), name: z.string(), code: z.string() })
+        .passthrough(),
+    ),
+  })
+  .passthrough();
+const WardListCanarySchema = z
+  .object({
+    wards: z.array(
+      z
+        .object({
+          id: z.number().int(),
+          name: z.string(),
+          code: z.string(),
+          district_code: z.string().optional().nullable(),
+        })
+        .passthrough(),
+    ),
+  })
+  .passthrough();
+
 // Single-resource (no list wrapper) handled separately.
 const StoreSingleSchema = z.object({ store: z.object({ id: z.number() }).passthrough() }).passthrough();
 
@@ -76,7 +102,59 @@ const CANARY_MATRIX: CanaryEntry[] = [
   // { resource: 'pos_shifts', endpoint: '/admin/pos_shifts.json?limit=1', schema: PosShiftListResponseSchema },
   { resource: 'stock_transfers', endpoint: '/admin/stock_transfers.json?limit=1', schema: StockTransferListResponseSchema },
   { resource: 'payment_methods', endpoint: '/admin/payment_methods.json', schema: PaymentMethodListResponseSchema },
+  // Vietnamese administrative units — drift detection for both 3-tier (default) and 2-tier (level=2) schemas.
+  { resource: 'provinces_level3', endpoint: '/admin/provinces.json', schema: ProvinceListCanarySchema },
+  { resource: 'provinces_level2', endpoint: '/admin/provinces.json?level=2', schema: ProvinceListCanarySchema },
+  // wards level=2 needs a province_code; HN code 2001 is stable post-reform anchor.
+  { resource: 'wards_level2_hanoi', endpoint: '/admin/wards.json?level=2&province_code=2001', schema: WardListCanarySchema },
 ];
+
+/**
+ * Optional write-lock probe: confirms Sapo write API still rejects level=2 codes.
+ * Gated by env CANARY_PROBE_WRITE=1 + CANARY_CUSTOMER_ID=<id>. Default: skipped.
+ *
+ * Sapo returns 422 on the level=2 ward — NO database row is created (verified 2026-05-01).
+ * If this probe ever returns 200/201, Sapo has opened level=2 write → canary alert →
+ * delete src/tools/address-write-validation.ts and add `level` param to write tools.
+ */
+async function probeWriteLock(
+  baseUrl: string,
+  auth: string,
+  customerId: string,
+): Promise<{ stillLocked: boolean; httpStatus: number; body: unknown }> {
+  const url = `${baseUrl}/admin/customers/${customerId}/addresses.json`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: auth, 'Content-Type': 'application/json' },
+    signal: AbortSignal.timeout(10000),
+    body: JSON.stringify({
+      address: {
+        address1: '[CANARY] level=2 write-lock probe — DO NOT USE',
+        city: 'Hà Nội',
+        country: 'Vietnam',
+        province: 'Hà Nội',
+        province_code: '2001',
+        ward: 'Phường Hoàn Kiếm',
+        ward_code: '200001',
+        district_code: '-1',
+        first_name: 'CANARY',
+      },
+    }),
+  });
+  let body: unknown = null;
+  try {
+    body = await res.json();
+  } catch {
+    /* ignore */
+  }
+  // Sapo returns 422 with errors[].code === 'unsupported' when locked.
+  const stillLocked =
+    res.status === 422 &&
+    typeof body === 'object' &&
+    body !== null &&
+    Array.isArray((body as { errors?: unknown[] }).errors);
+  return { stillLocked, httpStatus: res.status, body };
+}
 
 interface CanaryResult {
   resource: string;
@@ -160,8 +238,32 @@ async function main(): Promise<never> {
     }
   }
 
+  // Optional write-lock probe (level=2 write API).
+  let writeLockReport: unknown = null;
+  if (process.env.CANARY_PROBE_WRITE === '1' && process.env.CANARY_CUSTOMER_ID) {
+    const probe = await probeWriteLock(baseUrl, auth, process.env.CANARY_CUSTOMER_ID);
+    writeLockReport = probe;
+    if (probe.stillLocked) {
+      log('info', 'level2_write_lock: still locked (HTTP 422) — expected');
+    } else {
+      log(
+        'error',
+        `level2_write_lock: UNLOCKED (HTTP ${probe.httpStatus}) — Sapo may now accept level=2 writes. ` +
+          'Action: remove src/tools/address-write-validation.ts and add `level` param to write tools.',
+      );
+      driftCount++;
+    }
+  }
+
   const reportPath = resolve(process.cwd(), 'canary-report.json');
-  writeFileSync(reportPath, JSON.stringify({ store, runAt: new Date().toISOString(), results }, null, 2));
+  writeFileSync(
+    reportPath,
+    JSON.stringify(
+      { store, runAt: new Date().toISOString(), results, writeLockReport },
+      null,
+      2,
+    ),
+  );
   log('info', `Report: ${reportPath}`);
 
   if (driftCount > 0) {

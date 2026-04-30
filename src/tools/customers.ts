@@ -9,6 +9,8 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { SapoClient } from '../client/http.js';
 import { CustomerListResponseSchema, CustomerSingleResponseSchema } from '../schemas/customer.js';
+import { resolveProvince } from './address-resolver.js';
+import { detectLevel2WriteAttempt } from './address-write-validation.js';
 import { errResponse, handleNotFound, okResponse } from './tool-response.js';
 
 /** Pagination envelope returned for list tools */
@@ -197,7 +199,12 @@ export function registerCustomerTools(server: McpServer, client: SapoClient): vo
       country_code: z.string().optional(),
       default: z.boolean().optional(),
     })
-    .describe('Address payload. Required: address1, city, country.');
+    .describe(
+      'Address payload. Required: address1, city, country. ' +
+        'For subdivision fields: pass BOTH text name AND code together (e.g. province + province_code). ' +
+        'Sapo write API only accepts the pre-2025 3-tier schema; the post-2025 2-tier "địa chỉ mới" ' +
+        '(province_code 2001+, district_code "-1") is rejected with 422.',
+    );
 
   server.registerTool(
     'create_customer',
@@ -227,6 +234,20 @@ export function registerCustomerTools(server: McpServer, client: SapoClient): vo
       if (!args.email && !args.phone) {
         return errResponse('create_customer requires at least one of: email, phone');
       }
+      const resolvedAddresses: typeof args.addresses = args.addresses ? [] : undefined;
+      if (args.addresses) {
+        for (const [i, addr] of args.addresses.entries()) {
+          const err = detectLevel2WriteAttempt(addr);
+          if (err) return errResponse(`addresses[${i}]: ${err}`);
+          const resolved = await resolveProvince(addr, client);
+          if (typeof resolved === 'string') return errResponse(`addresses[${i}]: ${resolved}`);
+          resolvedAddresses!.push(
+            resolved
+              ? { ...addr, province: resolved.province, province_code: resolved.province_code }
+              : addr,
+          );
+        }
+      }
       const body: Record<string, unknown> = {};
       if (args.email !== undefined) body.email = args.email;
       if (args.phone !== undefined) body.phone = args.phone;
@@ -238,7 +259,7 @@ export function registerCustomerTools(server: McpServer, client: SapoClient): vo
       if (args.verified_email !== undefined) body.verified_email = args.verified_email;
       if (args.tags !== undefined) body.tags = args.tags;
       if (args.note !== undefined) body.note = args.note;
-      if (args.addresses !== undefined) body.addresses = args.addresses;
+      if (resolvedAddresses !== undefined) body.addresses = resolvedAddresses;
 
       const raw = await client.post('/customers.json', { customer: body });
       const parsed = CustomerSingleResponseSchema.safeParse(raw);

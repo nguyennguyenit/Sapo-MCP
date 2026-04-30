@@ -34,6 +34,7 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { SapoClient } from '../client/http.js';
 import type { SapoConfig } from '../config.js';
 import type { GuardContext } from '../guards.js';
+import { registerAdministrativeUnitTools } from '../tools/administrative-units.js';
 import { registerCustomerAddressTools } from '../tools/customer-addresses.js';
 import { registerCustomerTools } from '../tools/customers.js';
 import { registerDestructiveOrderTools } from '../tools/destructive-orders.js';
@@ -57,6 +58,7 @@ export function registerPosOnlineTools(
   // Foundation read tools — Phase 3a (13 tools)
   registerCustomerTools(server, client);
   registerCustomerAddressTools(server, client);
+  registerAdministrativeUnitTools(server, client); // 3: list_provinces, list_districts, list_wards
   registerProductReadTools(server, client);
   registerVariantReadTools(server, client);
   registerInventoryReadTools(server, client);

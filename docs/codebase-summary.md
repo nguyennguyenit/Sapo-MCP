@@ -6,11 +6,11 @@
 |--------|-------|
 | **Total src/ LOC** | 9,091 |
 | **TypeScript files** | 40+ |
-| **Test files** | 10 |
-| **Test cases** | 84 |
+| **Test files** | 79 |
+| **Test cases** | 943 |
 | **Zod schemas** | 24 |
 | **Modes** | 4 |
-| **Tools** | 105 unique (107 summed: pos-online 51, web 31, pos-counter 15, analytics 10) |
+| **Tools** | 109 unique (111 summed: pos-online 55, web 31, pos-counter 15, analytics 10) |
 | **Build output** | dist/index.mjs (ESM) |
 
 ## Directory Structure
@@ -40,7 +40,7 @@ sapo-mcp/
 │   │
 │   ├── modes/
 │   │   ├── registry.ts           # parseModes(), registerModes()
-│   │   ├── pos-online.ts         # 51 tools (42 default + 9 destructive)
+│   │   ├── pos-online.ts         # 55 tools (46 default + 9 destructive)
 │   │   ├── web.ts                # 31 tools
 │   │   ├── pos-counter.ts        # 15 tools
 │   │   └── analytics.ts          # 10 tools
@@ -65,6 +65,10 @@ sapo-mcp/
 │   │   ├── products-*.ts         # products read, SEO
 │   │   ├── variants-*.ts         # variants read, write, write
 │   │   ├── customers.ts          # customer CRUD
+│   │   ├── customer-addresses.ts # customer address CRUD (level=3 only)
+│   │   ├── administrative-units.ts # list_provinces / list_districts / list_wards (?level=2|3 param)
+│   │   ├── address-resolver.ts   # fuzzy-match province text/code → canonical Sapo pair (cached)
+│   │   ├── address-write-validation.ts # pre-flight reject level=2 codes (Sapo write API limitation)
 │   │   ├── collections.ts        # collection list/get/create/delete
 │   │   ├── blogs.ts              # blog CRUD
 │   │   ├── articles.ts           # article CRUD
@@ -140,7 +144,8 @@ sapo-mcp/
 - **Destructive:** destructive-orders.ts, destructive-resources.ts (gated: cancel, delete, delete_strict, inventory_set, shift_close, cashbook_write, refund)
 - **Inventory:** inventory-readonly.ts, inventory-write.ts
 - **Products/Variants:** products-readonly.ts, variants-readonly.ts, variants-write.ts, products-seo.ts
-- **Customers:** customers.ts, customer-addresses.ts
+- **Customers:** customers.ts, customer-addresses.ts, administrative-units.ts (provinces/districts/wards lookup)
+- **Address validation:** address-write-validation.ts — pre-flight reject for Vietnam's post-2025 2-tier (level=2) codes, which Sapo write API rejects with 422. Removable when Sapo opens level=2 write (canary alerts on flip)
 - **Collections/Blog:** collections.ts, blogs.ts, articles.ts, pages.ts
 - **Web:** script-tags.ts, store-info.ts, locations.ts, payment-methods.ts (4 undocumented)
 - **POS Counter:** pos-shifts.ts, suppliers.ts, stock-transfers.ts (pos_shifts non-functional — returns HTML)
@@ -307,6 +312,13 @@ All tools return consistent shapes:
 | **HTTP Mocks** | — | — | MSW v2.14.2 |
 
 **Setup:** vitest.config.ts with MSW integration; SAPO_STORE=test env isolation.
+
+### Canary (scripts/canary.ts)
+
+Nightly schema-drift probe against a live dev store (gated by `SAPO_CANARY_STORE` GitHub secret).
+
+- **Read-side:** GET each anchor endpoint (products, orders, customers, provinces level=3 + level=2, wards level=2 HN…) and parse with the same Zod schemas the tools use. Schema parse fail = drift.
+- **Write-lock probe (opt-in):** If `CANARY_PROBE_WRITE=1` + `CANARY_CUSTOMER_ID=<id>` are set, POST a level=2 address payload — expects HTTP 422 ("Ward is not supported"). When that flips to 2xx, Sapo has opened level=2 write → drop `address-write-validation.ts` and add a `level` param to write tools.
 
 ## Naming Conventions
 

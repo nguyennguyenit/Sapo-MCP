@@ -31,10 +31,18 @@ describe('AddressSchema', () => {
     expect((result as Record<string, unknown>).lat).toBe(21.0245);
   });
 
-  it('requires id, address1, city, province, country', () => {
-    const missing = { id: 1, address1: '123 Test', city: 'Hà Nội' };
-    const result = AddressSchema.safeParse(missing);
-    expect(result.success).toBe(false);
+  it('requires id; tolerates null subdivision fields (Sapo returns null when codes omitted)', () => {
+    const missingId = { address1: '123 Test', city: 'Hà Nội' };
+    expect(AddressSchema.safeParse(missingId).success).toBe(false);
+
+    const nullProvince = {
+      id: 1,
+      address1: '123 Test',
+      city: 'Hà Nội',
+      province: null,
+      country: 'Vietnam',
+    };
+    expect(AddressSchema.safeParse(nullProvince).success).toBe(true);
   });
 
   it('allows null address2 and ward', () => {

@@ -1,11 +1,12 @@
 /**
- * Order read tools for pos-online mode.
- * Registers: list_orders, get_order, count_orders, search_orders
+ * Order tools for pos-online mode.
+ * Registers: list_orders, get_order, count_orders, search_orders, update_order
  *
  * Sapo endpoints:
  *   GET /admin/orders.json
  *   GET /admin/orders/{id}.json
  *   GET /admin/orders/count.json
+ *   PUT /admin/orders/{id}.json (update_order — limited fields)
  *   Search via list with name=, email=, phone= filter params
  */
 
@@ -193,6 +194,55 @@ export function registerOrderTools(server: McpServer, client: SapoClient): void 
       if (!parsed.success) return errResponse('Invalid response from Sapo API: order search');
       const envelope = buildEnvelope(parsed.data.orders, limit);
       return okResponse(envelope);
+    },
+  );
+
+  // ── update_order ────────────────────────────────────────────────────────────
+  server.registerTool(
+    'update_order',
+    {
+      description:
+        'Update an existing order via PUT /admin/orders/{id}.json. Supports: tags, note, ' +
+        'note_attributes, email, buyer_accepts_marketing. Verified live 2026-05-01. ' +
+        'NOTE: The `customer` link CANNOT be changed via Private App — Sapo silently ignores ' +
+        'customer/customer_id fields on update (no error, no effect). ' +
+        'Workarounds for tracking customer on a completed order: ' +
+        '(a) tag it — `tags: "customer:<id>"` (searchable via search_orders); ' +
+        '(b) set email — `email: <customer.email>` (Sapo may auto-match in some reports). ' +
+        'For a true DB-level link, use the Sapo admin web UI or wait for OAuth Partner App support. ' +
+        'Do NOT cancel + recreate via draft_order to "fix" the link — that loses transaction history, ' +
+        'refunds, and inventory state.',
+      inputSchema: {
+        order_id: z.number().int().describe('Order ID to update. Required.'),
+        tags: z
+          .string()
+          .optional()
+          .describe('Comma-separated tags. Empty string clears all tags.'),
+        note: z.string().nullable().optional().describe('Order note. Pass null to clear.'),
+        email: z
+          .string()
+          .nullable()
+          .optional()
+          .describe('Customer email on the order. Pass null to clear.'),
+        buyer_accepts_marketing: z.boolean().optional(),
+        note_attributes: z
+          .array(z.object({ name: z.string(), value: z.string() }))
+          .optional()
+          .describe('Custom name/value pairs attached to the order.'),
+      },
+    },
+    async (args) => {
+      return handleNotFound(async () => {
+        const { order_id, ...rest } = args;
+        const body: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(rest)) {
+          if (v !== undefined) body[k] = v;
+        }
+        const raw = await client.put(`/orders/${order_id}.json`, { order: body });
+        const parsed = OrderSingleResponseSchema.safeParse(raw);
+        if (!parsed.success) return errResponse('Invalid response from Sapo API: update order');
+        return okResponse(parsed.data.order);
+      }, 'Order');
     },
   );
 }

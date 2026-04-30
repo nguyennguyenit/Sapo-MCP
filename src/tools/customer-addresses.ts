@@ -8,6 +8,8 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import type { SapoClient } from '../client/http.js';
 import { AddressListResponseSchema, AddressSingleResponseSchema } from '../schemas/address.js';
+import { resolveProvince } from './address-resolver.js';
+import { detectLevel2WriteAttempt } from './address-write-validation.js';
 import { errResponse, handleNotFound, okResponse } from './tool-response.js';
 
 const addressWriteFields = {
@@ -65,8 +67,13 @@ export function registerCustomerAddressTools(server: McpServer, client: SapoClie
     'add_customer_address',
     {
       description:
-        'Add a new address to a customer. Per Sapo API: address1, city, country are required. ' +
-        'Vietnamese subdivision codes (province_code, district_code, ward_code) are optional but recommended for delivery accuracy.',
+        'Add a new address to a customer. Required: address1, city, country. ' +
+        'Province handling: pass either `province` (text — fuzzy-matched, e.g. "Hồ Chí Minh", ' +
+        '"HCM", "TPHCM" all resolve to canonical "TP Hồ Chí Minh") OR `province_code` (1–63). ' +
+        'The tool fills the missing field from the canonical Sapo dataset. ' +
+        'For district/ward: pass BOTH text name AND code together (use list_districts / list_wards). ' +
+        'NOTE: Sapo write API only accepts the pre-2025 3-tier schema. Post-2025 codes ' +
+        '(province_code 2001+, district_code "-1") are rejected pre-flight.',
       inputSchema: {
         customer_id: z.number().int().describe('Customer ID to add address to. Required.'),
         ...addressWriteFields,
@@ -76,11 +83,19 @@ export function registerCustomerAddressTools(server: McpServer, client: SapoClie
       },
     },
     async (args) => {
+      const level2Err = detectLevel2WriteAttempt(args);
+      if (level2Err) return errResponse(level2Err);
+      const resolved = await resolveProvince(args, client);
+      if (typeof resolved === 'string') return errResponse(resolved);
       return handleNotFound(async () => {
         const { customer_id, ...rest } = args;
-        const body: Record<string, unknown> = {};
-        for (const [k, v] of Object.entries(rest)) {
-          if (v !== undefined) body[k] = v;
+        const body: Record<string, unknown> = { ...rest };
+        for (const k of Object.keys(body)) {
+          if (body[k] === undefined) delete body[k];
+        }
+        if (resolved) {
+          body.province = resolved.province;
+          body.province_code = resolved.province_code;
         }
         const raw = await client.post(`/customers/${customer_id}/addresses.json`, {
           address: body,
@@ -98,7 +113,11 @@ export function registerCustomerAddressTools(server: McpServer, client: SapoClie
     {
       description:
         'Update an existing customer address. Only provided fields are modified. ' +
-        'To set this address as default, use set_default_customer_address (Sapo dedicated endpoint).',
+        'To set this address as default, use set_default_customer_address (Sapo dedicated endpoint). ' +
+        'IMPORTANT: When changing subdivision fields, pass BOTH the text name AND the code ' +
+        '(e.g. province + province_code together) — codes alone are silently dropped. ' +
+        'Sapo write API only accepts the pre-2025 3-tier schema; new 2-tier addresses cannot be ' +
+        'written via this endpoint (returns 422 "Ward is not supported").',
       inputSchema: {
         customer_id: z.number().int().describe('Customer ID. Required.'),
         address_id: z.number().int().describe('Address ID to update. Required.'),
@@ -106,11 +125,19 @@ export function registerCustomerAddressTools(server: McpServer, client: SapoClie
       },
     },
     async (args) => {
+      const level2Err = detectLevel2WriteAttempt(args);
+      if (level2Err) return errResponse(level2Err);
+      const resolved = await resolveProvince(args, client);
+      if (typeof resolved === 'string') return errResponse(resolved);
       return handleNotFound(async () => {
         const { customer_id, address_id, ...rest } = args;
-        const body: Record<string, unknown> = {};
-        for (const [k, v] of Object.entries(rest)) {
-          if (v !== undefined) body[k] = v;
+        const body: Record<string, unknown> = { ...rest };
+        for (const k of Object.keys(body)) {
+          if (body[k] === undefined) delete body[k];
+        }
+        if (resolved) {
+          body.province = resolved.province;
+          body.province_code = resolved.province_code;
         }
         const raw = await client.put(
           `/customers/${customer_id}/addresses/${address_id}.json`,

@@ -6,8 +6,10 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SapoNotFoundError } from '../../src/client/errors.js';
 import type { SapoClient } from '../../src/client/http.js';
+import { _resetProvinceCache } from '../../src/tools/address-resolver.js';
 import { registerCustomerTools } from '../../src/tools/customers.js';
 import listFixture from '../fixtures/sapo/customers/list-response.json' with { type: 'json' };
+import listNullProvinceFixture from '../fixtures/sapo/customers/list-with-null-province.json' with { type: 'json' };
 import singleFixture from '../fixtures/sapo/customers/single.json' with { type: 'json' };
 
 function makeServer(): McpServer {
@@ -42,6 +44,7 @@ describe('registerCustomerTools', () => {
   let client: SapoClient;
 
   beforeEach(() => {
+    _resetProvinceCache();
     server = makeServer();
     client = makeClient();
     registerCustomerTools(server, client);
@@ -89,6 +92,21 @@ describe('registerCustomerTools', () => {
         '/customers.json',
         expect.objectContaining({ params: expect.objectContaining({ since_id: 1000 }) }),
       );
+    });
+
+    // Regression: real Sapo responses include addresses with province/district/ward = null
+    // when those fields were not supplied at create time. AddressSchema must tolerate this
+    // or the entire list parse fails — see memory "Sapo API quirks" #4.6 (capture-and-pin).
+    it('parses customer list when addresses have null subdivision fields', async () => {
+      vi.spyOn(client, 'get').mockResolvedValueOnce(listNullProvinceFixture);
+
+      const result = await callTool(server, 'list_customers', { limit: 50 });
+      const wrapped = result as { content: Array<{ text: string }>; isError?: boolean };
+      expect(wrapped.isError).not.toBe(true);
+      const text = JSON.parse(wrapped.content[0].text);
+      expect(text.data).toHaveLength(1);
+      expect(text.data[0].id).toBe(42240755);
+      expect(text.data[0].addresses[0].province).toBeNull();
     });
   });
 
@@ -221,6 +239,27 @@ describe('registerCustomerTools', () => {
           }),
         }),
       );
+    });
+
+    it('rejects inline addresses with level=2 codes pre-flight', async () => {
+      const postSpy = vi.spyOn(client, 'post');
+      const result = await callTool(server, 'create_customer', {
+        email: 'addr@test.com',
+        addresses: [
+          { address1: '1 OK', city: 'HN', country: 'Vietnam' },
+          {
+            address1: '2 Bad',
+            city: 'HN',
+            country: 'Vietnam',
+            province_code: '2001',
+            ward_code: '200001',
+          },
+        ],
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+      const text = (result as { content: Array<{ text: string }> }).content[0].text;
+      expect(text).toContain('addresses[1]');
+      expect(postSpy).not.toHaveBeenCalled();
     });
   });
 
