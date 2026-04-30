@@ -3,6 +3,8 @@ dist/
 coverage/
 .env
 .env.local
+.npmrc
+.npmrc.publish
 *.log
 .DS_Store
 
