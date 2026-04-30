@@ -1,6 +1,6 @@
 # Codebase Summary
 
-## Project Statistics (v0.5.0)
+## Project Statistics (v0.6.0)
 
 | Metric | Value |
 |--------|-------|
@@ -10,7 +10,7 @@
 | **Test cases** | 84 |
 | **Zod schemas** | 24 |
 | **Modes** | 4 |
-| **Tools** | 104 |
+| **Tools** | 105 unique (107 summed: pos-online 51, web 31, pos-counter 15, analytics 10) |
 | **Build output** | dist/index.mjs (ESM) |
 
 ## Directory Structure
@@ -40,7 +40,7 @@ sapo-mcp/
 │   │
 │   ├── modes/
 │   │   ├── registry.ts           # parseModes(), registerModes()
-│   │   ├── pos-online.ts         # 48 tools
+│   │   ├── pos-online.ts         # 51 tools (42 default + 9 destructive)
 │   │   ├── web.ts                # 31 tools
 │   │   ├── pos-counter.ts        # 15 tools
 │   │   └── analytics.ts          # 10 tools
@@ -96,13 +96,13 @@ sapo-mcp/
 │   ├── Dockerfile                # Multi-stage, Node 20 Alpine, non-root
 │   └── docker-compose.yml        # Local dev setup
 │
-├── package.json                  # v0.5.0, engines: node >=20
+├── package.json                  # v0.6.0, engines: node >=20
 ├── tsconfig.json                 # ES2022, NodeNext ESM, strict
 ├── biome.json                    # v2.4.13, 2-space, 100 width
 ├── vitest.config.ts              # Coverage + MSW setup
 ├── tsup.config.ts                # Single entry, ESM, shebang banner
 │
-├── README.md                      # (262 lines, preserved)
+├── README.md                      # (~427 lines)
 ├── CHANGELOG.md                   # Per-version history
 ├── LICENSE                        # MIT
 └── docs/
@@ -137,13 +137,13 @@ sapo-mcp/
 
 **Organization by domain:**
 - **Orders:** orders.ts, draft-orders.ts, refunds.ts, order-transactions.ts, orders-counter.ts
-- **Destructive:** destructive-orders.ts, destructive-resources.ts (gated)
+- **Destructive:** destructive-orders.ts, destructive-resources.ts (gated: cancel, delete, delete_strict, inventory_set, shift_close, cashbook_write, refund)
 - **Inventory:** inventory-readonly.ts, inventory-write.ts
 - **Products/Variants:** products-readonly.ts, variants-readonly.ts, variants-write.ts, products-seo.ts
 - **Customers:** customers.ts, customer-addresses.ts
 - **Collections/Blog:** collections.ts, blogs.ts, articles.ts, pages.ts
 - **Web:** script-tags.ts, store-info.ts, locations.ts, payment-methods.ts (4 undocumented)
-- **POS Counter:** pos-shifts.ts, suppliers.ts, stock-transfers.ts
+- **POS Counter:** pos-shifts.ts, suppliers.ts, stock-transfers.ts (pos_shifts non-functional — returns HTML)
 - **Pricing:** price-rules.ts, discount-codes.ts
 - **Analytics:** analytics.ts (10 composed tools)
 - **Helper:** tool-response.ts (okResponse, errResponse, handleNotFound)
@@ -167,6 +167,15 @@ handleNotFound(id, resource) → 404 with friendly message
 
 ### 5. Config Module (src/config.ts)
 **Purpose:** Zod-based environment validation; version-managed secrets.
+
+**Destructive categories (7 total):**
+- `cancel` — order cancellation
+- `delete` — soft delete resources
+- `delete_strict` — hard delete resources
+- `inventory_set` — adjust inventory to specific level
+- `shift_close` — close POS shifts
+- `cashbook_write` — cashbook entries (internal-only, future)
+- `refund` — create refunds for orders (new in 0.6.0)
 
 **Environment variables (23 total):**
 

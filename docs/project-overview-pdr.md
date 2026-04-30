@@ -4,7 +4,7 @@
 
 **sapo-mcp** is a Model Context Protocol (MCP) server providing AI agents and Claude integrations with safe, authenticated access to Sapo.vn's POS and e-commerce platform via the Private App API.
 
-- **Current version:** 0.5.0 (pre-1.0)
+- **Current version:** 0.6.0 (pre-1.0)
 - **Release date:** 2026-04-30
 - **License:** MIT
 - **Repository:** https://github.com/nguyennguyenit/Sapo-MCP
@@ -26,14 +26,14 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 | **Integration Partner** | Multi-tenant via OAuth for SaaS platform | Deferred to 1.0+ (OAuth) |
 | **Developer** | CLI, HTTP server, reproducible setup | stdio transport, Docker |
 
-## Scope (0.5.0)
+## Scope (0.6.0)
 
 ### In Scope
-- **4 modes:** pos-online (48), web (31), pos-counter (15), analytics (10)
+- **4 modes:** pos-online (51), web (31), pos-counter (15), analytics (10) — 105 unique tools (2 shared: list_variants_for_product, get_variant)
 - **2 transports:** stdio (Claude Desktop, Cursor), Streamable HTTP (Docker, GoClaw)
 - **Single-tenant:** Private App credentials only
-- **Destructive safety:** Category-based gating (SAPO_ALLOW_OPS), confirm flag
-- **14 Zod schemas** for tool I/O validation
+- **Destructive safety:** Category-based gating (SAPO_ALLOW_OPS), confirm flag, 7 categories
+- **24 Zod schemas** for tool I/O validation
 
 ### Out of Scope (Deferred 1.0+)
 - **MCP Resources:** sapo:// URI scheme for read-heavy data
@@ -41,11 +41,11 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 - **Webhook receiver:** event streaming
 - **OAuth 2.0 Partner App:** multi-tenant SaaS
 - **Storefront GraphQL:** Private App vs Partner App detection
-- **Nightly canary CI:** automated smoke tests
 - **Session-level rate limiting:** adaptive queue
 
 ### Known Issues / Deferrals
-- 4 pos-counter endpoints undocumented (marked [UNDOCUMENTED verified 2026-04-30])
+- 3 pos-counter endpoints undocumented (marked [UNDOCUMENTED verified 2026-04-30]): locations, suppliers, stock_transfers
+- 1 pos-counter endpoint non-functional: pos_shifts returns text/html instead of JSON (Sapo POS web shell)
 - 5 internal-only endpoints require OAuth (purchase_orders, purchase_returns, stock_adjustments, cash_transactions, cashbook)
 - Session eviction is passive (no active timer; relies on idle GC)
 - 429 rate limit retry only (no adaptive queue)
@@ -71,14 +71,15 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 
 ## Success Criteria
 
-| Criterion | Status (0.5.0) |
+| Criterion | Status (0.6.0) |
 |-----------|-----------------|
 | 4 modes fully implemented | ✅ DONE (Phase 1–9) |
-| 104 tools registered & tested | ✅ DONE |
+| 105 unique tools registered & tested | ✅ DONE |
 | stdio + HTTP transports working | ✅ DONE |
 | >80% test coverage | ✅ DONE (84 tests, 10 files) |
+| Nightly canary CI for schema drift | ✅ DONE (daily 2AM UTC) |
 | npm published + smoke tested | ✅ DONE |
-| Destructive ops gated | ✅ DONE (SAPO_ALLOW_OPS) |
+| Destructive ops gated (7 categories) | ✅ DONE (SAPO_ALLOW_OPS) |
 | PII redaction active | ✅ DONE |
 | Docker example provided | ✅ DONE |
 | README + tool descriptions clear | ✅ DONE |
@@ -86,7 +87,7 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 ## Constraints
 
 ### Technical
-- Single-tenant only (Private App, no multi-tenant OAuth in 0.5.0)
+- Single-tenant only (Private App, no multi-tenant OAuth in 0.6.0)
 - 30s timeout on all HTTP calls (Sapo API latency)
 - Max 100 concurrent sessions (memory + file descriptor bound)
 - Retry only on transient (5xx, 429); not on auth/validation (401/404/422)
@@ -105,19 +106,19 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 
 ## Version & Release Model
 
-### Current Version: 0.5.0
+### Current Version: 0.6.0
 - **Release date:** 2026-04-30
 - **Status:** Stable, ready for production single-tenant use
 - **Breaking changes allowed:** Yes (pre-1.0)
 - **npm:** published with provenance signature
 
-### Release Process (0.5.0)
+### Release Process (0.6.0)
 1. Changesets v2 for tracking
 2. Manual version bump + changelog
 3. npm publish with token (NPM_TOKEN granular)
 4. Smoke test (probe read, Inspector UI, Claude Desktop, Docker)
 5. MCP Registry PR (1–4 weeks)
-6. GitHub tag (v0.5.0)
+6. GitHub tag (v0.6.0)
 
 ### Post-0.5.1 Model
 - Auto-versioning via Changesets
@@ -130,13 +131,13 @@ Enable merchants to leverage AI agents (Claude, custom LLMs) to autonomously man
 |-------|---------|--------|---------------|
 | 1 | API verification probe | ✅ | 2026-04-30 |
 | 2 | Project scaffold + core infra | ✅ | 2026-04-30 |
-| 3 | pos-online mode TDD (48 tools) | ✅ | 2026-04-30 |
+| 3 | pos-online mode TDD (51 tools) | ✅ | 2026-04-30 |
 | 4 | web mode TDD (31 tools) | ✅ | 2026-04-30 |
 | 5 | stdio transport + 0.1.0 | ✅ | 2026-04-30 |
 | 6 | pos-counter TDD (15 tools) | ✅ | 2026-04-30 |
 | 7 | Streamable HTTP transport | ✅ | 2026-04-30 |
 | 8 | analytics mode (10 tools) | ✅ | 2026-04-30 |
-| 9 | Docs + 0.5.0 release | ✅ | 2026-04-30 |
+| 9 | Docs + 0.6.0 release | ✅ | 2026-04-30 |
 
 ## Post-1.0 Roadmap
 

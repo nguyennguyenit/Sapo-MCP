@@ -4,15 +4,16 @@
 
 | Version | Date | Status | Highlights |
 |---------|------|--------|-----------|
-| **0.5.0** | 2026-04-30 | ✅ Released | 4 modes, 104 tools, 2 transports, pre-1.0 |
+| **0.6.0** | 2026-04-30 | ✅ Released | 4 modes, 105 tools, 2 transports, canary CI, pre-1.0 |
 | 0.1.0 | — | — | (Phase 5 milestone) |
 
-## Current Status (0.5.0)
+## Current Status (0.6.0)
 
 - **Release Date:** 2026-04-30
 - **Status:** Stable, production-ready for single-tenant Private App use
-- **Tool Coverage:** 104 tools across 4 modes (pos-online 48, web 31, pos-counter 15, analytics 10)
+- **Tool Coverage:** 105 unique tools across 4 modes (pos-online 51, web 31, pos-counter 15, analytics 10); 2 tools shared between pos-online and web
 - **Transports:** stdio (Claude Desktop, Cursor), HTTP (Docker, GoClaw)
+- **Monitoring:** Nightly canary CI for schema drift detection (GitHub Actions)
 - **Breaking Changes:** Allowed until 1.0 (minor bumps may break tool names/schemas)
 - **npm:** Published with provenance signature
 
@@ -39,15 +40,16 @@
 
 ### Phase 3: pos-online Mode (TDD)
 **Status:** ✅ DONE (2026-04-30)
-- **48 tools** across 5 categories:
-  - Orders (list, get, create, draft, returns, transactions)
+- **51 tools** across 5 categories:
+  - Orders (list, get, create, draft, refunds, transactions)
   - Customers (list, get, create, update, delete, addresses)
   - Products (read, variants read)
   - Pricing (price rules, discount codes)
   - Inventory (read)
-- Destructive: cancel, delete, delete_strict (gated)
+- Destructive: cancel, delete, delete_strict, refund (gated)
 - Auto-pagination support
 - 30+ test cases
+- Refund implementation: uses /admin/orders/{id}/refunds (Sapo admin UI compatible); /order_returns endpoint deprecated (not exposed fulfillment_line_item_id)
 
 ### Phase 4: web Mode (TDD)
 **Status:** ✅ DONE (2026-04-30)
@@ -107,7 +109,7 @@
 - All read-only, auto-paginate
 - 10+ test cases
 
-### Phase 9: Documentation & 0.5.0 Release
+### Phase 9: Documentation & 0.6.0 Release
 **Status:** ✅ DONE (2026-04-30)
 - README.md (262 lines, features, quickstart, modes, env, security, Docker, probing)
 - CHANGELOG.md (per-version history)
@@ -118,6 +120,7 @@
 - Codebase summary (codebase-summary.md)
 - Deployment guide (deployment-guide.md)
 - Project roadmap (project-roadmap.md)
+- Nightly canary CI (.github/workflows/canary.yml): daily 2AM UTC, schema drift detection for 12 endpoint groups
 - npm published with provenance
 - Smoke tests passed (read, Inspector UI, Claude Desktop, Docker)
 - MCP Registry PR submitted
@@ -129,7 +132,8 @@
 | **G1: Pos-counter scope (Phase 6)** | ✅ Resolved | Bucket B probe verified 15 tools, 4 undocumented |
 | **G2: Write-probe safety (Phase 6)** | ✅ Resolved | Hard-guard: test/dev/sandbox only, refuses production |
 | **G3: Pre-1.0 breaking changes (PDR)** | ✅ Resolved | Allowed; documented in README |
-| **G4: Destructive gating (Phase 6)** | ✅ Resolved | Category-based (cancel, delete, delete_strict, inventory_set, shift_close, cashbook_write); SAPO_ALLOW_OPS + per-tool override |
+| **G4: Destructive gating (Phase 6)** | ✅ Resolved | Category-based (cancel, delete, delete_strict, inventory_set, shift_close, cashbook_write, refund); SAPO_ALLOW_OPS + per-tool override |
+| **G5: Schema monitoring** | ✅ Resolved | Nightly canary CI: daily 2AM UTC, 12 endpoints, Zod validation, GitHub Issue on drift |
 
 ## Post-1.0 Roadmap (Deferred)
 
@@ -227,14 +231,14 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 - ✓ Private App (limited scope) vs Partner App (full scope) detection
 - ✓ Test against Sapo dev store + live merchant
 
-## Known Deferrals & Limitations (0.5.0)
+## Known Deferrals & Limitations (0.6.0)
 
 ### Endpoints
-- **4 undocumented pos-counter endpoints:** locations, suppliers, pos_shifts, stock_transfers (marked [UNDOCUMENTED verified 2026-04-30]; schema may change)
+- **3 undocumented pos-counter endpoints:** locations, suppliers, stock_transfers (marked [UNDOCUMENTED verified 2026-04-30]; schema may change)
+- **1 non-functional pos-counter endpoint:** pos_shifts returns text/html (Sapo POS web shell) instead of JSON; tools list_pos_shifts and get_pos_shift excluded from canary, potentially non-functional
 - **5 internal-only endpoints (403):** purchase_orders, purchase_returns, stock_adjustments, cash_transactions, cashbook (requires OAuth Partner App, deferred to post-1.0)
 
 ### Infrastructure
-- **Nightly canary CI:** Not yet implemented; mandatory before 1.0
 - **Session active timer:** Passive GC only; no active eviction thread
 - **Rate limiting:** None; relies on Sapo API 429 + retry
 - **Session persistence:** None; in-memory only (ephemeral)
@@ -252,14 +256,14 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 
 | Phase | Target | Status |
 |-------|--------|--------|
-| **0.5.0** | 2026-04-30 | ✅ Released |
+| **0.6.0** | 2026-04-30 | ✅ Released |
 | **0.6.0** | 2026-06-30 (est) | Pending (Resources + Prompts) |
 | **0.7.0** | 2026-08-31 (est) | Pending (Webhooks, GraphQL) |
 | **1.0.0** | 2026-10-31 (est) | Pending (OAuth, full feature set) |
 
 ## Version Management
 
-### 0.5.0 (Current)
+### 0.6.0 (Current)
 - Pre-1.0 status
 - Minor bumps may break tool names/schemas (warned in README)
 - Manual version bumps via Changesets
@@ -284,12 +288,13 @@ Detect Private App vs Partner App, conditionally scope GraphQL tools:
 
 ## Success Metrics
 
-| Metric | Target (0.5.0) | Actual |
+| Metric | Target (0.6.0) | Actual |
 |--------|-----------------|--------|
-| **Tools implemented** | 100+ | 104 ✅ |
+| **Tools implemented** | 100+ | 105 unique ✅ |
 | **Modes** | 4 | 4 ✅ |
 | **Transports** | 2 | 2 ✅ |
 | **Test coverage** | >80% | 84 tests (10 files) ✅ |
+| **Nightly canary CI** | Yes | ✅ (daily 2AM UTC, schema drift detection) |
 | **npm published** | Yes | ✅ |
 | **Smoke tests passed** | Yes | ✅ (read, UI, Docker) |
 | **Docs complete** | Yes | ✅ (README, architecture, standards) |

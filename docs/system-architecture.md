@@ -36,13 +36,14 @@ sapo-mcp is an MCP server bridging AI agents and the Sapo.vn API via two transpo
         ┌──────────────▼──────────────┐
         │ McpServer                   │
         │ name: sapo-mcp              │
-        │ version: 0.5.0              │
+        │ version: 0.6.0              │
         │                             │
-        │ Tools (104 total):          │
-        │ ├─ pos-online (48)          │
+        │ Tools (105 unique):         │
+        │ ├─ pos-online (51)          │
         │ ├─ web (31)                 │
         │ ├─ pos-counter (15)         │
-        │ └─ analytics (10)           │
+        │ ├─ analytics (10)           │
+        │ └─ shared: 2 tools          │
         └──────────────┬──────────────┘
                        │
         ┌──────────────▼──────────────┐
@@ -114,7 +115,7 @@ sapo-mcp --mode=pos-online,web --transport=http --port=3333 --help --version
 export function createServer(opts: ServerCreateOptions): McpServer {
   const server = new McpServer({
     name: 'sapo-mcp',
-    version: '0.5.0'  // SERVER_VERSION
+    version: '0.6.0'  // SERVER_VERSION
   });
   
   const client = new SapoClient({
@@ -165,7 +166,7 @@ interface SapoConfig {
 - registerIfAllowed(tool, allowOps, config) → boolean
 - Checks per-tool override: SAPO_ALLOW_TOOL_<NAME>=1
 - OR allowOps has '*'
-- OR allowOps has tool.category
+- OR allowOps has tool.category (cancel, delete, delete_strict, inventory_set, shift_close, cashbook_write, refund)
 - Skipped tools logged at warn level
 
 ### 5. Modes Registry (src/modes/)
@@ -570,12 +571,35 @@ docker run -p 3333:3333 \
   sapo-mcp:latest
 ```
 
-## Scaling Considerations (Out of Scope for 0.5.0)
+## Schema Drift Detection (Canary CI)
+
+**Purpose:** Nightly automated validation that Sapo API endpoint schemas haven't changed.
+
+**Implementation:** `.github/workflows/canary.yml` + `scripts/canary.ts`
+
+**Probe matrix (12 endpoints):**
+- Customers, Orders, Refunds, Products, Variants, Collections, Blogs, Articles, Pages, Store info, Locations, Inventory
+
+**Process:**
+1. Daily 2AM UTC (manual dispatch available)
+2. Fetch each endpoint + parse with Zod schema (same as tools use)
+3. safeParse failure = schema regression (required field changed, type mismatch)
+4. Schemas use .passthrough() — additive Sapo changes don't false-positive
+5. Exit code: 0=ok, 2=auth_fail, 3=schema_drift, 1=fatal
+6. On non-zero: file GitHub Issue with diff report
+
+**Known exclusions:**
+- `/admin/pos_shifts.json` — returns text/html (Sapo POS web shell), not JSON
+
+**Discovered issues (2026-04-30):**
+- PageSchema.modified_on must be nullable (fixed in 0.6.0)
+- pos_shifts endpoint non-functional (excluded from matrix)
+
+## Scaling Considerations (Out of Scope for 0.6.0)
 
 - **Single instance:** No k8s/clustering guidance
 - **Session limits:** 100 max concurrent (memory + FD bound)
 - **Rate limiting:** None (Sapo API limit: 429 retry only)
-- **Nightly canary:** Not yet implemented
 - **Session persistence:** None (ephemeral, in-memory)
 
 ## Related Files

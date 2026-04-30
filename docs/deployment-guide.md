@@ -148,7 +148,7 @@ curl http://localhost:3333/health
 # Response:
 {
   "status": "ok",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "modes": ["pos-online"],
   "sessions": 0
 }
@@ -183,7 +183,7 @@ CMD ["node", "dist/index.mjs", "--mode=pos-online", "--transport=http"]
 ```bash
 # Build
 docker build -f examples/Dockerfile -t sapo-mcp:latest .
-docker tag sapo-mcp:latest sapo-mcp:0.5.0
+docker tag sapo-mcp:latest sapo-mcp:0.6.0
 
 # Run (local, no auth)
 docker run --rm -p 3333:3333 \
@@ -290,7 +290,7 @@ curl -H "Authorization: Bearer $SAPO_MCP_AUTH_TOKEN" http://localhost:3333/healt
 
 | Variable | Default | Values |
 |----------|---------|--------|
-| `SAPO_ALLOW_OPS` | `` (none) | CSV: `cancel`, `delete`, `delete_strict`, `inventory_set`, `shift_close`, `cashbook_write`, or `*` |
+| `SAPO_ALLOW_OPS` | `` (none) | CSV: `cancel`, `delete`, `delete_strict`, `inventory_set`, `shift_close`, `cashbook_write`, `refund`, or `*` |
 | `SAPO_MAX_AUTO_PAGES` | `10` | Integer (0–unlimited, but memory impact) |
 | `SAPO_RETRY_MAX` | `3` | Integer (1–10) |
 | `SAPO_LOG_LEVEL` | `info` | `error`, `warn`, `info`, `debug`, `trace` |
@@ -535,7 +535,7 @@ See **RELEASE.md** (authoritative):
 
 3. **Verify published**
    ```bash
-   npm view sapo-mcp@0.5.0
+   npm view sapo-mcp@0.6.0
    npm info sapo-mcp
    ```
 
