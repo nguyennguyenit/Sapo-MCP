@@ -81,4 +81,84 @@ describe('registerCustomerAddressTools', () => {
       );
     });
   });
+
+  const singleAddrFixture = { address: addressesFixture.addresses[0] };
+
+  describe('add_customer_address', () => {
+    it('POSTs /customers/{id}/addresses.json with required fields', async () => {
+      vi.spyOn(client, 'post').mockResolvedValueOnce(singleAddrFixture);
+
+      await callTool(server, 'add_customer_address', {
+        customer_id: 1001,
+        address1: '789 Trần Hưng Đạo',
+        city: 'Hà Nội',
+        country: 'Vietnam',
+        province_code: 'HN',
+      });
+
+      expect(client.post).toHaveBeenCalledWith(
+        '/customers/1001/addresses.json',
+        expect.objectContaining({
+          address: expect.objectContaining({
+            address1: '789 Trần Hưng Đạo',
+            city: 'Hà Nội',
+            country: 'Vietnam',
+            province_code: 'HN',
+          }),
+        }),
+      );
+    });
+
+    it('returns isError:true when customer not found', async () => {
+      vi.spyOn(client, 'post').mockRejectedValueOnce(new SapoNotFoundError('Customer'));
+
+      const result = await callTool(server, 'add_customer_address', {
+        customer_id: 9999,
+        address1: 'x',
+        city: 'y',
+        country: 'z',
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+    });
+  });
+
+  describe('update_customer_address', () => {
+    it('PUTs /customers/{id}/addresses/{addr_id}.json with provided fields only', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleAddrFixture);
+
+      await callTool(server, 'update_customer_address', {
+        customer_id: 1001,
+        address_id: 2001,
+        phone: '+84988888888',
+      });
+
+      expect(client.put).toHaveBeenCalledWith(
+        '/customers/1001/addresses/2001.json',
+        expect.objectContaining({ address: { phone: '+84988888888' } }),
+      );
+    });
+  });
+
+  describe('set_default_customer_address', () => {
+    it('PUTs the dedicated default endpoint with empty body', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleAddrFixture);
+
+      await callTool(server, 'set_default_customer_address', {
+        customer_id: 1001,
+        address_id: 2002,
+      });
+
+      expect(client.put).toHaveBeenCalledWith('/customers/1001/addresses/2002/default.json', {});
+    });
+
+    it('returns isError:true when address not found', async () => {
+      vi.spyOn(client, 'put').mockRejectedValueOnce(new SapoNotFoundError('Customer'));
+
+      const result = await callTool(server, 'set_default_customer_address', {
+        customer_id: 1001,
+        address_id: 9999,
+      });
+      expect((result as { isError: boolean }).isError).toBe(true);
+    });
+  });
 });

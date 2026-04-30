@@ -46,3 +46,9 @@ export const AddressListResponseSchema = z
   .passthrough();
 
 export type AddressListResponse = z.infer<typeof AddressListResponseSchema>;
+
+export const AddressSingleResponseSchema = z
+  .object({ address: AddressSchema })
+  .passthrough();
+
+export type AddressSingleResponse = z.infer<typeof AddressSingleResponseSchema>;

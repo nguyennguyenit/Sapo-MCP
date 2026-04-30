@@ -116,12 +116,12 @@ describe('registerCustomerTools', () => {
   });
 
   describe('search_customers', () => {
-    it('calls /customers/search.json with query param', async () => {
+    it('calls /customers.json with query param (Sapo blocks /customers/search.json as internal-only)', async () => {
       vi.spyOn(client, 'get').mockResolvedValueOnce(listFixture);
 
       await callTool(server, 'search_customers', { query: 'nguyen', limit: 10 });
       expect(client.get).toHaveBeenCalledWith(
-        '/customers/search.json',
+        '/customers.json',
         expect.objectContaining({
           params: expect.objectContaining({ query: 'nguyen', limit: 10 }),
         }),
@@ -169,6 +169,86 @@ describe('registerCustomerTools', () => {
       vi.spyOn(client, 'get').mockRejectedValueOnce(new SapoNotFoundError('Customer'));
 
       const result = await callTool(server, 'list_customer_orders', { customer_id: 9999 });
+      expect((result as { isError: boolean }).isError).toBe(true);
+    });
+  });
+
+  describe('create_customer', () => {
+    it('POSTs /customers.json with email + phone', async () => {
+      vi.spyOn(client, 'post').mockResolvedValueOnce(singleFixture);
+
+      await callTool(server, 'create_customer', {
+        email: 'foo@bar.com',
+        phone: '+84900000001',
+        first_name: 'Foo',
+        last_name: 'Bar',
+      });
+
+      expect(client.post).toHaveBeenCalledWith(
+        '/customers.json',
+        expect.objectContaining({
+          customer: expect.objectContaining({
+            email: 'foo@bar.com',
+            phone: '+84900000001',
+            first_name: 'Foo',
+            last_name: 'Bar',
+          }),
+        }),
+      );
+    });
+
+    it('rejects when neither email nor phone provided', async () => {
+      const result = await callTool(server, 'create_customer', { first_name: 'NoContact' });
+      expect((result as { isError: boolean }).isError).toBe(true);
+      expect(client.post).not.toHaveBeenCalled();
+    });
+
+    it('passes inline addresses array to Sapo', async () => {
+      vi.spyOn(client, 'post').mockResolvedValueOnce(singleFixture);
+
+      await callTool(server, 'create_customer', {
+        email: 'addr@test.com',
+        addresses: [{ address1: '1 Lê Lợi', city: 'TP HCM', country: 'Vietnam' }],
+      });
+
+      expect(client.post).toHaveBeenCalledWith(
+        '/customers.json',
+        expect.objectContaining({
+          customer: expect.objectContaining({
+            addresses: [
+              expect.objectContaining({ address1: '1 Lê Lợi', city: 'TP HCM', country: 'Vietnam' }),
+            ],
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('update_customer', () => {
+    it('PUTs /customers/{id}.json with provided fields only', async () => {
+      vi.spyOn(client, 'put').mockResolvedValueOnce(singleFixture);
+
+      await callTool(server, 'update_customer', {
+        customer_id: 1001,
+        note: 'VIP',
+        tags: 'wholesale,priority',
+      });
+
+      expect(client.put).toHaveBeenCalledWith(
+        '/customers/1001.json',
+        expect.objectContaining({
+          customer: { note: 'VIP', tags: 'wholesale,priority' },
+        }),
+      );
+    });
+
+    it('returns isError:true when customer not found', async () => {
+      vi.spyOn(client, 'put').mockRejectedValueOnce(new SapoNotFoundError('Customer'));
+
+      const result = await callTool(server, 'update_customer', {
+        customer_id: 9999,
+        note: 'x',
+      });
       expect((result as { isError: boolean }).isError).toBe(true);
     });
   });

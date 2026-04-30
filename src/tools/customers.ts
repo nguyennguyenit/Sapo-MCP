@@ -1,7 +1,8 @@
 /**
- * Customer read tools for pos-online mode.
+ * Customer tools for pos-online mode.
  * Registers: list_customers, get_customer, search_customers,
- *            count_customers, list_customer_orders
+ *            count_customers, list_customer_orders,
+ *            create_customer, update_customer
  */
 
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
@@ -108,7 +109,7 @@ export function registerCustomerTools(server: McpServer, client: SapoClient): vo
     },
     async (args) => {
       const limit = args.limit ?? 50;
-      const raw = await client.get('/customers/search.json', {
+      const raw = await client.get('/customers.json', {
         params: { query: args.query, limit },
       });
       const parsed = CustomerListResponseSchema.safeParse(raw);
@@ -171,6 +172,120 @@ export function registerCustomerTools(server: McpServer, client: SapoClient): vo
         const items = orders as Array<{ id: number }>;
         const envelope = buildEnvelope(items, limit);
         return okResponse(envelope);
+      }, 'Customer');
+    },
+  );
+
+  // ── create_customer ─────────────────────────────────────────────────────────
+  const customerInputAddressSchema = z
+    .object({
+      address1: z.string().describe('Primary address line. Required.'),
+      city: z.string().describe('City name. Required.'),
+      country: z.string().describe('Country name (e.g. "Vietnam"). Required.'),
+      address2: z.string().optional(),
+      first_name: z.string().optional(),
+      last_name: z.string().optional(),
+      company: z.string().optional(),
+      phone: z.string().optional(),
+      province: z.string().optional().describe('Vietnamese province name (e.g. "Hà Nội").'),
+      province_code: z.string().optional(),
+      district: z.string().optional(),
+      district_code: z.string().optional(),
+      ward: z.string().optional(),
+      ward_code: z.string().optional(),
+      zip: z.string().optional(),
+      country_code: z.string().optional(),
+      default: z.boolean().optional(),
+    })
+    .describe('Address payload. Required: address1, city, country.');
+
+  server.registerTool(
+    'create_customer',
+    {
+      description:
+        'Create a new customer. Must provide either email OR phone (or both). ' +
+        'Optionally include addresses array for inline address creation. ' +
+        'Returns the created customer including auto-generated id.',
+      inputSchema: {
+        email: z.string().optional().describe('Customer email address.'),
+        phone: z.string().optional().describe('Customer phone number (E.164 format recommended).'),
+        first_name: z.string().optional(),
+        last_name: z.string().optional(),
+        gender: z.enum(['male', 'female', 'other']).optional(),
+        dob: z.string().optional().describe('Birth date in YYYY-MM-DD.'),
+        accepts_marketing: z.boolean().optional(),
+        verified_email: z.boolean().optional(),
+        tags: z.string().optional().describe('Comma-separated tags.'),
+        note: z.string().optional(),
+        addresses: z
+          .array(customerInputAddressSchema)
+          .optional()
+          .describe('Optional inline addresses to create with the customer.'),
+      },
+    },
+    async (args) => {
+      if (!args.email && !args.phone) {
+        return errResponse('create_customer requires at least one of: email, phone');
+      }
+      const body: Record<string, unknown> = {};
+      if (args.email !== undefined) body.email = args.email;
+      if (args.phone !== undefined) body.phone = args.phone;
+      if (args.first_name !== undefined) body.first_name = args.first_name;
+      if (args.last_name !== undefined) body.last_name = args.last_name;
+      if (args.gender !== undefined) body.gender = args.gender;
+      if (args.dob !== undefined) body.dob = args.dob;
+      if (args.accepts_marketing !== undefined) body.accepts_marketing = args.accepts_marketing;
+      if (args.verified_email !== undefined) body.verified_email = args.verified_email;
+      if (args.tags !== undefined) body.tags = args.tags;
+      if (args.note !== undefined) body.note = args.note;
+      if (args.addresses !== undefined) body.addresses = args.addresses;
+
+      const raw = await client.post('/customers.json', { customer: body });
+      const parsed = CustomerSingleResponseSchema.safeParse(raw);
+      if (!parsed.success) return errResponse('Invalid response from Sapo API: create customer');
+      return okResponse(parsed.data.customer);
+    },
+  );
+
+  // ── update_customer ─────────────────────────────────────────────────────────
+  server.registerTool(
+    'update_customer',
+    {
+      description:
+        'Update an existing customer. Only provided fields are modified. ' +
+        'Use add_customer_address / update_customer_address tools for address management.',
+      inputSchema: {
+        customer_id: z.number().int().describe('Customer ID to update. Required.'),
+        email: z.string().optional(),
+        phone: z.string().optional(),
+        first_name: z.string().optional(),
+        last_name: z.string().optional(),
+        gender: z.enum(['male', 'female', 'other']).optional(),
+        dob: z.string().optional().describe('Birth date in YYYY-MM-DD.'),
+        accepts_marketing: z.boolean().optional(),
+        verified_email: z.boolean().optional(),
+        tags: z.string().optional().describe('Comma-separated tags.'),
+        note: z.string().optional(),
+      },
+    },
+    async (args) => {
+      return handleNotFound(async () => {
+        const body: Record<string, unknown> = {};
+        if (args.email !== undefined) body.email = args.email;
+        if (args.phone !== undefined) body.phone = args.phone;
+        if (args.first_name !== undefined) body.first_name = args.first_name;
+        if (args.last_name !== undefined) body.last_name = args.last_name;
+        if (args.gender !== undefined) body.gender = args.gender;
+        if (args.dob !== undefined) body.dob = args.dob;
+        if (args.accepts_marketing !== undefined) body.accepts_marketing = args.accepts_marketing;
+        if (args.verified_email !== undefined) body.verified_email = args.verified_email;
+        if (args.tags !== undefined) body.tags = args.tags;
+        if (args.note !== undefined) body.note = args.note;
+
+        const raw = await client.put(`/customers/${args.customer_id}.json`, { customer: body });
+        const parsed = CustomerSingleResponseSchema.safeParse(raw);
+        if (!parsed.success) return errResponse('Invalid response from Sapo API: update customer');
+        return okResponse(parsed.data.customer);
       }, 'Customer');
     },
   );
