@@ -17,6 +17,7 @@
  * All runtime logging must go to stderr via the logger.
  */
 
+import { realpathSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -207,9 +208,18 @@ async function main(): Promise<void> {
 }
 
 // Only run when executed directly as the entry point, not when imported as a module.
-// Guards against main() firing during unit tests that import exported pure functions.
+// Resolves symlinks so invocations via node_modules/.bin/sapo-mcp (which links to
+// dist/index.mjs) match modulePath. Guards main() during unit tests that import
+// exported pure functions.
 const modulePath = fileURLToPath(import.meta.url);
-const entryPath = process.argv[1] ? resolve(process.argv[1]) : '';
+let entryPath = '';
+if (process.argv[1]) {
+  try {
+    entryPath = realpathSync(resolve(process.argv[1]));
+  } catch {
+    entryPath = resolve(process.argv[1]);
+  }
+}
 const isDirectRun =
   modulePath === entryPath || entryPath.endsWith('index.mjs') || entryPath.endsWith('index.cjs');
 

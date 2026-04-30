@@ -1,6 +1,6 @@
 {
   "name": "sapo-mcp",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Model Context Protocol server for Sapo.vn — POS & e-commerce API access for Claude & AI agents",
   "license": "MIT",
   "author": {

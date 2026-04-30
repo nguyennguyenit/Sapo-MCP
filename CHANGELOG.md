@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 > Resources + Prompts + webhook receiver + OAuth 2.0 multi-tenant support
 > (see [Post-1.0 roadmap](README.md#post-10-roadmap)).
 
+## [0.5.1] — 2026-04-30
+
+### Fixed
+
+- CLI: `--version` and `--help` now work when invoked via the `node_modules/.bin/sapo-mcp` shim (or `npx sapo-mcp`). The entry-point guard in `src/index.ts` resolved `process.argv[1]` literally, missing the case where npm symlinks the bin to `dist/index.mjs`. Now resolves symlinks via `realpathSync` before comparing.
+
 ## [0.5.0] — 2026-04-30
 
 First public release. Four modes, two transports, 104 tools.
