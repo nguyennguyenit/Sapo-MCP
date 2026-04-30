@@ -6,16 +6,13 @@
 
 Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerce platform.
 
-> **Status:** Pre-1.0 (v0.5.0). Tool names and schemas may shift on minor
-> bumps until 1.0. The 1.0 cut is gated on Resources, Prompts, a webhook
-> receiver, and OAuth multi-tenant — see [Post-1.0 roadmap](#post-10-roadmap).
-
 ## Features
 
 - **4 modes, 107 tools:** `pos-online` (51), `web` (31), `pos-counter` (15), `analytics` (10)
 - **Two transports:** stdio (Claude Desktop, Cursor) and Streamable HTTP (Docker, GoClaw)
 - **Safe by default:** destructive ops gated via `SAPO_ALLOW_OPS` (default: none); all destructive calls also require `confirm: true`
 - **Single-tenant:** one shop per server instance via Private App credentials
+- **Pre-1.0:** tool names and schemas may shift on minor bumps. See [Post-1.0 roadmap](#post-10-roadmap).
 
 ## Installation
 
@@ -27,7 +24,6 @@ Recommended for MCP clients (Claude Desktop, Cursor). Always pulls the latest pu
 
 ```bash
 npx -y sapo-mcp@latest --version
-# → 0.5.1
 ```
 
 ### Option B — global install
@@ -152,45 +148,11 @@ Use `--mode=pos-online,web,analytics` to register multiple modes (union of tools
 | `pos-counter` | 0.5.0 | POS counter: locations, inventory write, suppliers, shifts, stock transfers (15 tools) |
 | `analytics` | 0.5.0 | Composed reports: revenue, top products/customers, LTV, tax, channel breakdown, discount usage, shift report (10 tools) |
 
-## Available Tools
-
-### `pos-online` — 46 tools
-
-Covers online order management, draft orders, fulfillments, refunds, customers, addresses, price rules, discount codes, products (read), variants (read), inventory (read), and transactions.
-
-9 tools are destructive and gated via `SAPO_ALLOW_OPS` (categories: `cancel`, `delete`, `delete_strict`, `refund`).
-
-### `web` — 31 tools
-
-Covers collections, blogs, articles, pages, script tags, products SEO, store info, and variants (read).
-
-6 tools are destructive and gated via `SAPO_ALLOW_OPS`.
-
-### `analytics` — 10 tools
-
-Composed read-only reports aggregated from order/inventory/variant data:
-
-- `revenue_summary` — totals grouped by day/week/month
-- `top_products`, `top_customers`, `customer_ltv`
-- `inventory_low_stock`, `inventory_value`
-- `tax_summary`, `online_vs_counter_breakdown`, `discount_usage_report`
-- `shift_report` — POS shift summary with payment-method breakdown
-
-All tools auto-paginate up to `SAPO_MAX_AUTO_PAGES`; results carry `truncated: true` when the cap is hit.
-
-### `pos-counter` — 15 tools
-
-Covers physical POS counter operations: locations, payment methods, inventory write (adjust/connect/set), variant update, POS orders (filtered), suppliers, POS shifts, and stock transfers.
-
-1 tool is destructive and gated via `SAPO_ALLOW_OPS=inventory_set`: `set_inventory_level`.
-
-> **Note: 5 internal-only endpoints excluded from pos-counter**
+> **Note:** `pos-counter` excludes 5 internal-only endpoints (`purchase_orders`, `purchase_returns`, `stock_adjustments`, `cash_transactions`, `cashbook`) — these return HTTP 403 for Private App credentials and require an OAuth Partner App (post-1.0 roadmap).
 >
-> `purchase_orders`, `purchase_returns`, `stock_adjustments`, `cash_transactions`, and `cashbook`
-> return HTTP 403 for Private App credentials. These require an OAuth Partner App.
-> Tracked for post-1.0.0 roadmap. See [`out-of-scope.md`](plans/260430-1000-sapo-mcp-implementation/out-of-scope.md).
+> Analytics tools auto-paginate up to `SAPO_MAX_AUTO_PAGES`; results carry `truncated: true` when the cap is hit.
 
-### Tool Verification Status
+## Tool Verification Status
 
 Verification levels for the 107 tools (last updated 2026-04-30):
 
@@ -202,7 +164,7 @@ Verification levels for the 107 tools (last updated 2026-04-30):
 | 🔵 | **Composed** | Not a Sapo endpoint — internal aggregation logic, logic-tested via unit tests |
 | 🚨 | **Broken** | Known non-functional, see notes |
 
-#### Canary-monitored endpoints (drift detected within 24h)
+### Canary-monitored endpoints (drift detected within 24h)
 
 | Resource | Mode(s) | Endpoint |
 |---|---|---|
@@ -219,26 +181,7 @@ Verification levels for the 107 tools (last updated 2026-04-30):
 | stock_transfers | pos-counter | `/admin/stock_transfers.json` |
 | payment_methods | pos-counter | `/admin/payment_methods.json` |
 
-#### Live-verified (not in canary)
-
-- **Refunds** (3 tools, pos-online): `list_refunds`, `get_refund`, `create_refund` — schema verified via live POST 2026-04-30 against order #1001
-- **Order Transactions** (2): captured fixture from live transaction
-- **Fulfillments** (4): probed during refunds investigation
-- **POS orders** (2): use documented `/admin/orders?source_name=pos` filter
-- **Customers/Customer-addresses write** (7): user-verified during 0.6.0 release
-
-#### Docs-only (mock-tested)
-
-Schema from Sapo official `docs/sapo-api-reference.md` sections 4.1–4.26. Tools work per documentation but not live-probed yet:
-
-- Articles, Blogs, Collections, Discount codes (write), Inventory (write), Price rules (write), Product SEO, Script tags, Variants (write), and most destructive `delete_*` tools
-- Risk: schema drift undetected until a user hits a 422
-
-#### Composed (10 tools, analytics mode)
-
-`revenue_summary`, `top_products`, `top_customers`, `customer_ltv`, `tax_summary`, `online_vs_counter_breakdown`, `discount_usage_report`, `shift_report`, `inventory_low_stock`, `inventory_value` — these aggregate data from multiple Sapo endpoints; correctness verified via unit tests, not endpoint contracts.
-
-#### 🚨 Broken — needs investigation
+### 🚨 Broken — needs investigation
 
 | Tool | Resource | Issue |
 |---|---|---|
@@ -247,7 +190,7 @@ Schema from Sapo official `docs/sapo-api-reference.md` sections 4.1–4.26. Tool
 
 These 2 tools may fail at runtime. POS shift management currently requires admin UI.
 
-#### Per-tool status
+### Per-tool status
 
 Click each section to expand the full tool list with status icons.
 
@@ -371,15 +314,6 @@ All 10 are 🔵 composed (aggregate from multiple Sapo endpoints, no single endp
 
 </details>
 
-For full read access (customers, products) combined with POS counter tools, use:
-```
---mode=pos-online,pos-counter
-```
-
-### Multi-mode
-
-`--mode=pos-online,web` activates the union of both sets. Tools shared across modes (e.g. variant reads) are registered once.
-
 ## Destructive Operations
 
 Destructive tools (cancel, delete, bulk-delete) are blocked by default. To enable specific categories:
@@ -404,18 +338,14 @@ Note: full secret-file isolation (reading the secret only at startup, then clear
 Verify which Sapo API endpoints are available on your store before configuring tools.
 
 ```bash
-# Read-only probe — safe to run against any store (GET only, no mutations)
+# Read-only probe — safe to run against any store (GET only)
 SAPO_STORE=mystore SAPO_API_KEY=xxx SAPO_API_SECRET=yyy npm run probe
+
+# Schema drift check — same probe + Zod validation against fixtures
+npm run canary
 ```
 
-Outputs `plans/.../probe-results.json` (raw) and `plans/.../verify-report.md` (human-readable).
-The report includes Bucket A smoke results and Bucket B POS endpoint availability —
-used to decide Phase 6 (`pos-counter`) scope via decision gate G1.
-
-Write-probe (`npm run probe:write`) is hard-guarded: it refuses to run unless
-`SAPO_STORE` contains `test`, `dev`, or `sandbox`. Never runs against production.
-
-See [`plans/260430-1000-sapo-mcp-implementation/verify-report.md`](plans/260430-1000-sapo-mcp-implementation/verify-report.md) for the latest results.
+Write-probe (`npm run probe:write`) refuses to run unless `SAPO_STORE` contains `test`, `dev`, or `sandbox` — never against production.
 
 ## HTTP Transport (Remote / Docker)
 
@@ -485,7 +415,7 @@ The 1.0.0 stable cut is gated on the following items, deferred from this release
 - **MCP Resources** — `sapo://shop/info`, `sapo://orders/today`, `sapo://orders/pending`, `sapo://inventory/low-stock`. Read-heavy data is more efficient as a Resource than repeated tool calls.
 - **MCP Prompts** — templated workflows (`respond_to_complaint`, `weekly_report`, `seo_optimize_product`, `customer_followup`).
 - **Webhook receiver** — sub-package surfacing Sapo webhooks as MCP events.
-- **OAuth 2.0 Partner App** — multi-tenant SaaS deployments. Unlocks the 5 internal-only endpoints currently excluded from `pos-counter` and the 4 Phase 8b reports (`cashflow_summary`, `pnl_summary`, `supplier_purchase_summary`, `daily_pos_report`).
+- **OAuth 2.0 Partner App** — multi-tenant SaaS deployments. Unlocks the 5 internal-only endpoints currently excluded from `pos-counter` and 4 deferred finance/PO reports (`cashflow_summary`, `pnl_summary`, `supplier_purchase_summary`, `daily_pos_report`).
 - **Storefront GraphQL module** — verify Private App access; scope tools if available.
 
 ## Changelog
