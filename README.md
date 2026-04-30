@@ -17,6 +17,34 @@ Model Context Protocol server for [Sapo.vn](https://www.sapo.vn) POS & e-commerc
 - **Safe by default:** destructive ops gated via `SAPO_ALLOW_OPS` (default: none); all destructive calls also require `confirm: true`
 - **Single-tenant:** one shop per server instance via Private App credentials
 
+## Installation
+
+Requires **Node.js 20 or newer**. Verify with `node --version`.
+
+### Option A — npx (no install)
+
+Recommended for MCP clients (Claude Desktop, Cursor). Always pulls the latest published version:
+
+```bash
+npx -y sapo-mcp@latest --version
+# → 0.5.1
+```
+
+### Option B — global install
+
+```bash
+npm install -g sapo-mcp
+sapo-mcp --version
+sapo-mcp --help
+```
+
+### Option C — local project dependency
+
+```bash
+npm install sapo-mcp
+npx sapo-mcp --mode=pos-online
+```
+
 ## Quick Start
 
 ### 1. Get Credentials
@@ -25,14 +53,18 @@ Create a Private App at [developers.sapo.vn](https://developers.sapo.vn):
 - Store name: `mystorename` → `mystorename.mysapo.net`
 - API Key + Secret
 
-### 2. Claude Desktop Config
+### 2. Configure your MCP client
+
+#### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%/Claude/claude_desktop_config.json` (Windows):
 
 ```json
 {
   "mcpServers": {
-    "sapo-pos": {
+    "sapo": {
       "command": "npx",
-      "args": ["sapo-mcp", "--mode=pos-online"],
+      "args": ["-y", "sapo-mcp", "--mode=pos-online,web,analytics"],
       "env": {
         "SAPO_STORE": "mystorename",
         "SAPO_API_KEY": "xxx",
@@ -43,7 +75,41 @@ Create a Private App at [developers.sapo.vn](https://developers.sapo.vn):
 }
 ```
 
-Use `--mode=pos-online,web` to register both modes at once (union of tools, shared variants registered once).
+Restart Claude Desktop. Tools appear under the 🔌 plug icon.
+
+#### Cursor
+
+Edit `~/.cursor/mcp.json` or per-workspace `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "sapo": {
+      "command": "npx",
+      "args": ["-y", "sapo-mcp", "--mode=pos-online,web"],
+      "env": {
+        "SAPO_STORE": "mystorename",
+        "SAPO_API_KEY": "xxx",
+        "SAPO_API_SECRET": "yyy"
+      }
+    }
+  }
+}
+```
+
+#### MCP Inspector (test/debug)
+
+```bash
+npx @modelcontextprotocol/inspector \
+  -e SAPO_STORE=mystorename \
+  -e SAPO_API_KEY=xxx \
+  -e SAPO_API_SECRET=yyy \
+  npx -y sapo-mcp --mode=pos-online
+```
+
+Open the printed URL in a browser to inspect/invoke registered tools.
+
+Use `--mode=pos-online,web,analytics` to register multiple modes (union of tools; shared tools registered once).
 
 ### 3. CLI Flags
 
