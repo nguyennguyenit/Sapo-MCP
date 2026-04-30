@@ -12,7 +12,7 @@ import type { SapoConfig } from './config.js';
 import { type ModeName, parseModes, registerModes } from './modes/registry.js';
 
 // Package version — updated by changeset releases
-const SERVER_VERSION = '0.0.0';
+const SERVER_VERSION = '0.5.0';
 
 export interface ServerCreateOptions {
   /** Pre-parsed mode list or comma-separated mode string */

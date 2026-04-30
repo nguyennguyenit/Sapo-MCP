@@ -5,13 +5,81 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+> **Pre-1.0 notice.** Until 1.0.0, minor version bumps (`0.x.0`) may include
+> breaking changes to tool names, schemas, or env vars. Patch bumps (`0.x.y`)
+> are bug-fix and additive only. The 1.0.0 stability cut is gated on MCP
+> Resources + Prompts + webhook receiver + OAuth 2.0 multi-tenant support
+> (see [Post-1.0 roadmap](README.md#post-10-roadmap)).
 
-### Added
-- Project scaffold: TypeScript ESM, tsup build, Vitest tests, Biome lint
-- Sapo HTTP client: Basic Auth, exponential backoff retry, since_id pagination
-- Category-based destructive guard (`SAPO_ALLOW_OPS`)
-- ENV validation via zod
-- Stderr-only logger with PII redaction policy
-- Mode framework placeholders: web, pos-online, pos-counter, analytics
-- CI: GitHub Actions test matrix (Node 20+22), release workflow, nightly canary
+## [0.5.0] — 2026-04-30
+
+First public release. Four modes, two transports, 104 tools.
+
+### Added — Modes
+
+- **`pos-online` (48 tools)** — online order management, draft orders,
+  fulfillments, returns, customers, addresses, price rules, discount codes,
+  products (read), variants (read), inventory (read), order transactions.
+  9 destructive tools gated via `SAPO_ALLOW_OPS`.
+- **`web` (31 tools)** — collections, blogs, articles, pages, script tags,
+  product SEO, store info, variants (read).
+  6 destructive tools gated via `SAPO_ALLOW_OPS`.
+- **`pos-counter` (15 tools)** — locations, payment methods, inventory write
+  (adjust/connect/set), variant update, POS orders (filtered), suppliers,
+  POS shifts, stock transfers. Includes 4 undocumented endpoints verified
+  2026-04-30.
+- **`analytics` (10 tools)** — composed read-only reports: `revenue_summary`,
+  `top_products`, `top_customers`, `customer_ltv`, `inventory_low_stock`,
+  `inventory_value`, `tax_summary`, `online_vs_counter_breakdown`,
+  `discount_usage_report`, `shift_report`.
+
+Multi-mode support via comma-separated `--mode=pos-online,web,analytics`;
+shared tools (e.g. variant reads) registered once.
+
+### Added — Transports
+
+- **stdio** — default; for Claude Desktop, Cursor, and other local MCP clients.
+- **Streamable HTTP** (`--transport=http --port=3333`) — for remote / Docker
+  deployments. Per-session `StreamableHTTPServerTransport`, idle session GC
+  (`SAPO_HTTP_SESSION_IDLE_MS`, default 30 min), max-session limit
+  (`SAPO_HTTP_MAX_SESSIONS`, default 100), graceful SIGTERM cleanup.
+
+### Added — Security
+
+- Bearer token auth (`SAPO_MCP_AUTH_TOKEN`) for HTTP transport — timing-safe
+  comparison; **required** when `SAPO_HTTP_HOST` is non-loopback (server
+  refuses to start otherwise).
+- CORS off by default; opt-in via `SAPO_HTTP_CORS_ORIGINS` CSV.
+- Category-based destructive guard (`SAPO_ALLOW_OPS`) — categories: `cancel`,
+  `delete`, `delete_strict`, `inventory_set`. All destructive tool calls
+  additionally require `confirm: true`.
+- ENV credentials policy: `SAPO_API_SECRET_FILE` preferred over
+  `SAPO_API_SECRET` (mitigates `/proc/<pid>/environ` exposure on shared hosts).
+- Stderr-only structured logging with PII redaction (info/debug/trace levels).
+
+### Added — Tooling
+
+- Sapo HTTP client: Basic Auth, exponential backoff with `Retry-After` respect,
+  no retry on 401/404/422, since_id auto-pagination capped at
+  `SAPO_MAX_AUTO_PAGES`.
+- Read probe (`npm run probe`) — Bucket A/B endpoint smoke check; outputs
+  `verify-report.md`.
+- Write probe (`npm run probe:write`) — hard-guarded; refuses to run unless
+  `SAPO_STORE` contains `test`/`dev`/`sandbox`.
+- Capture-fixtures script (`npm run capture:fixtures`) — pin live-API responses
+  for schema tests.
+- CI: GitHub Actions test matrix (Node 20 + 22), nightly canary against
+  dedicated dev store, Changesets-based release with npm provenance.
+- Docker: `examples/Dockerfile` (multi-stage, non-root, healthcheck) and
+  `examples/docker-compose.yml`.
+
+### Notes
+
+- 5 endpoints (`purchase_orders`, `purchase_returns`, `stock_adjustments`,
+  `cash_transactions`, `cashbook`) return HTTP 403 for Private App
+  credentials. They are intentionally excluded; OAuth Partner App support
+  is tracked for the post-1.0 roadmap.
+- `pos-counter` ships 4 undocumented endpoints verified working 2026-04-30
+  (`locations`, `payment_methods`, `suppliers`, `pos_shifts`,
+  `stock_transfers`). Tool descriptions begin with `[UNDOCUMENTED endpoint,
+  verified 2026-04-30, schema may change]`. Nightly canary monitors drift.
