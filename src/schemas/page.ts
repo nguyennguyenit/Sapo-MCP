@@ -32,7 +32,8 @@ export const PageSchema = z
     meta_description: z.string().optional().nullable(),
     tags: z.string().optional().nullable().describe('Comma-separated tag string.'),
     created_on: z.string(),
-    modified_on: z.string(),
+    /** Nullable in live data when page never modified after creation. */
+    modified_on: z.string().nullable(),
   })
   .passthrough();
 

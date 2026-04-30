@@ -1,6 +1,6 @@
 {
   "name": "sapo-mcp",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "Model Context Protocol server for Sapo.vn — POS & e-commerce API access for Claude & AI agents",
   "license": "MIT",
   "author": {
@@ -72,6 +72,7 @@
     "typecheck": "tsc --noEmit",
     "probe": "tsx scripts/probe-read.ts",
     "probe:write": "tsx scripts/probe-write.ts",
+    "canary": "tsx scripts/canary.ts",
     "capture:fixtures": "tsx scripts/capture-fixtures.ts",
     "release": "changeset publish",
     "ci": "npm run typecheck && npm run lint && npm run test:coverage && npm run build"

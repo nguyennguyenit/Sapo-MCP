@@ -38,7 +38,7 @@ jobs:
         if: steps.gate.outputs.skip != 'true'
         run: npm run build
 
-      - name: Run canary probe (read-only)
+      - name: Run canary (schema drift check)
         if: steps.gate.outputs.skip != 'true'
         id: probe
         env:
@@ -46,9 +46,8 @@ jobs:
           SAPO_API_KEY: ${{ secrets.SAPO_CANARY_API_KEY }}
           SAPO_API_SECRET: ${{ secrets.SAPO_CANARY_API_SECRET }}
         run: |
-          # probe-read.ts exits 0 = all available (no regression)
-          # exit 2 = auth failure, exit 3 = smoke regression, exit 1 = fatal
-          npm run probe 2>&1 | tee canary-output.txt
+          # canary.ts exits 0 = ok, 2 = auth_fail, 3 = drift, 1 = fatal
+          npm run canary 2>&1 | tee canary-output.txt
         continue-on-error: true
 
       - name: File issue on regression
